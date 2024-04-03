@@ -1055,3 +1055,353 @@ public class DistanceQueries {
 }
   ```
 </details>
+
+### Day 2: April 3, 2024
+
+**Today's Progress**: Successfully solved a long time upsolve backlog problem, [link]((https://leetcode.com/problems/maximize-value-of-function-in-a-ball-passing-game/))
+
+**Thoughts:** Really enjoyed solving this problem, this problem led me to explore the concept of binary jumping. Understanding this problem is easy, however, the trick is in the implementation, where we have to optimize space as well as time. If you see the question, you can clearly, see the recursive pattern. I did too! and used the recursion. And as expected, started failing when the test cases were going to the higher limit. So, too the next step, memoised the recursive steps (dynamic programming). So, as expected, this went far, however started failing for higher limit test cases(higher than the previous), due to space. See, in the question, the value of k is 10^10, and arrays can't go with size that high. So, initially, I was surprised, because, I sincerely thought, this was a small problem, why is it failing, took multiple attempts to solve it, even tried iterative dp and tried to minimize the array space as much as possible, however, I wasn't able to get all the test cases accepted. So, I started researching the solutions, since editorial is not there. Then, I came across binary jumping. Once, I started taking this problem as a graph problem, lots of roadblocks automatically broke. First, I used floyd, circle finding algorithm (its not that complicated, infact highly intuitive. refer this), proceeded to find cycle of the input nodes, store them in hashset, then for each node, I calculated the solution and found the max. It passed nearly all the test, but not all! I explored, as to where I went wrong, I used this visualizer to analyse the input, and instantly got to know, where I went wrong, I assumed, that the whole graph, will be a single connected component, however, this input contained multiple connected components. So, now if I only use floyd's algorithm to solve, I would have to traverse and save each cycle, the cycle's sum and then proceed, which will make it complex and also, time complexity will be compromised (first, in order to search, if the nodes are in cycle or not, we will have to go through all the cycles, saved in hashset). Therefore, used the plain old, binary jumping, in its simplest form, and voila! it worked. If you are getting a bit confused reading this, I understand, I haven't explained in great detail and skipped the deeper parts, as its a rough high level overview. However, I have uploaded the three big approaches I was working on, which I feel, is better than the big ass explaination.
+
+**Link to work:** Well, I haven't uploaded the code yet, however, pasting it below
+<details>
+  <summary>Simple Recursive Approach</summary>
+
+  ```java
+
+class Solution {
+    public long getMaxFunctionValue(List<Integer> receiver, long k) {
+        long ans=0;
+        for(int i=0;i<receiver.size();i++){
+            // System.out.println(i);
+            ans=Math.max(ans, f(i, receiver, k));
+        }
+        // System.out.println("f(0): "+f(0,receiver,k));
+        // System.out.println("f(1): "+f(1,receiver,k));
+        // System.out.println("f(2): "+f(2,receiver,k));
+        return ans;
+    }
+    long f(int n, List<Integer> receiver, long k){
+        if(k==-1){
+            return 0;
+        }
+        return n+f(receiver.get(n), receiver, k-1);
+    }
+}
+  ```
+</details>
+<details>
+  <summary>Recursive Memoisation Approach</summary>
+  
+  ```java
+
+class Solution {
+    public long getMaxFunctionValue(List<Integer> receiver, long k) {
+        if(receiver.size()==1)return 0;
+        return abc(receiver, k);
+    }
+    long dp[][];
+    long abc(List<Integer> receiver, long k){
+        long ans=0;
+        dp=new long[receiver.size()][1000];
+        for(int i=0;i<receiver.size();i++){
+            ans=Math.max(ans, ff(i, receiver, k));
+        }
+        return ans;
+    }
+    long ff(int n, List<Integer> receiver, long k){
+        if(k==-1){
+            return 0;
+        }
+        if(dp[n][(int)k]!=0){
+            return dp[n][(int)k];
+        }
+        dp[n][(int)k]= n+ff(receiver.get(n), receiver, k-1);
+        return dp[n][(int)k];
+    }
+}
+  ```
+</details>
+<details>
+  <summary>Floyd's algorithm Approach</summary>
+
+  ```java
+
+class Solution {
+    ArrayList<Integer> tree[];
+    ArrayList<Integer> succ;
+    int sumOfCycle, lengthOfCycle, cycleFirst;
+    HashSet<Integer> cycleElems;
+    int prefixSum[];
+    public long getMaxFunctionValue(List<Integer> receiver, long k) {
+        tree=new ArrayList[receiver.size()];
+        cycleElems=new HashSet<Integer>();
+        succ=new ArrayList<Integer>(receiver);
+        for(int i=0;i<receiver.size();i++){
+            tree[i]=new ArrayList<Integer>();
+        }
+        for(int i=0;i<receiver.size();i++){
+            tree[i].add(receiver.get(i));
+        }
+        floyd(0);
+        long max=0;
+        for(int i=0;i<receiver.size();i++){
+            long sum=cycleElems.contains(i)?solve2(i,k):solve11(i,k);
+            // System.out.println(i+": "+sum);
+            max=Math.max(sum,max);
+        }
+        return max;
+    }
+    void floyd(int x){
+        int a = succ(x);
+        int b = succ(succ(x));
+        while (a != b) {
+            a = succ(a);
+            b = succ(succ(b));
+        }
+        a = x;
+        while (a != b) {
+            a = succ(a);
+            b = succ(b);
+        }
+        int first = a;
+        b = succ(a);
+        int length = 1;
+        int sum=first;
+        cycleFirst=first;
+        while (a != b) {
+            cycleElems.add(b);
+            sum+=b;
+            b = succ(b);
+            length++;
+        }
+        cycleElems.add(first);
+        sumOfCycle=sum;
+        lengthOfCycle=length;
+    }
+    long solve11(int index, long k){
+        long sum=0; int ind=index;
+        while(k>0){
+            if(cycleElems.contains(index)){
+                break;
+            }
+            --k;
+            index=succ(index);
+            sum+=index;
+        }
+        return sum+solve2(index,k)+ind-index;
+    }
+    // outside cycle
+    long solve1(int index, long k){
+        long sum=0;int ind=index;
+        while(k>0){
+            if(cycleElems.contains(index)){
+                break;
+            }
+            --k;
+            index=succ(index);
+            sum+=index;
+        }
+        // System.out.println(sum+" -- "+k+" "+(k/lengthOfCycle));
+        sum+=(sumOfCycle*(k/lengthOfCycle));
+        // long temp=lengthOfCycle-(k%lengthOfCycle);
+        long temp=(k%lengthOfCycle);
+        // System.out.println(sum+" - "+temp+" "+k);
+        index=cycleFirst;
+        for(int i=0;i<temp;i++){
+            sum+=index;
+            index=succ(index);
+        }
+        // System.out.println("--> "+sum);
+        return sum+ind;
+    }
+    // inside cycle
+    long solve2(int index, long k){
+        long sum=0;int ind=index;
+        sum+=(sumOfCycle*(k/lengthOfCycle));
+        long temp=(k%lengthOfCycle);
+        index=succ(ind);
+        for(int i=0;i<temp;i++){
+            sum+=index;
+            index=succ(index);
+        }
+        return sum+ind;
+    }
+    int succ(int x){
+        return succ.get(x);
+    }
+}
+  ```
+</details>
+<details>
+  <summary>Binary Jumping Approach</summary>
+
+  ```java
+
+class Solution {
+    public long getMaxFunctionValue(List<Integer> receiver, long k) {
+        // return new Solution1().getMaxFunctionValue(receiver, k);
+        return new Solution2().getMaxFunctionValue(receiver, k);
+    }
+}
+class Solution1 {
+    ArrayList<Integer> tree[];
+    ArrayList<Integer> succ;
+    int sumOfCycle, lengthOfCycle, cycleFirst;
+    HashSet<Integer> cycleElems;
+    public long getMaxFunctionValue(List<Integer> receiver, long k) {
+        // tree=new ArrayList[receiver.size()];
+        cycleElems=new HashSet<Integer>();
+        succ=new ArrayList<Integer>(receiver);
+        // for(int i=0;i<receiver.size();i++){
+        //     tree[i]=new ArrayList<Integer>();
+        // }
+        // for(int i=0;i<receiver.size();i++){
+        //     tree[i].add(receiver.get(i));
+        // }
+        floyd(0);
+        long max=0;
+        for(int i=0;i<receiver.size();i++){
+            long sum=solve(i,k);
+            System.out.println(i+": "+sum);
+            max=Math.max(sum,max);
+        }
+        return max;
+    }
+    void floyd(int x){
+        int a = succ(x);
+        int b = succ(succ(x));
+        while (a != b) {
+            a = succ(a);
+            b = succ(succ(b));
+        }
+        a = x;
+        while (a != b) {
+            a = succ(a);
+            b = succ(b);
+        }
+        int first = a;
+        b = succ(a);
+        int length = 1;
+        int sum=first;
+        cycleFirst=first;
+        while (a != b) {
+            cycleElems.add(b);
+            sum+=b;
+            b = succ(b);
+            length++;
+        }
+        cycleElems.add(first);
+        sumOfCycle=sum;
+        lengthOfCycle=length;
+    }
+    long solve(int i, long k){
+        long sum=cycleElems.contains(i)?solveInsideCircle(i,k):solveOutsideCircle(i,k);
+        return sum;
+    }
+    long solveOutsideCircle(int index, long k){
+        long sum=0; int ind=index;
+        while(k>0){
+            if(cycleElems.contains(index)){
+                break;
+            }
+            --k;
+            index=succ(index);
+            sum+=index;
+        }
+        return sum+solveInsideCircle(index,k)+ind-index;
+    }
+    long solveInsideCircle(int index, long k){
+        long sum=0;int ind=index;
+        sum+=(sumOfCycle*(k/lengthOfCycle));
+        long temp=(k%lengthOfCycle);
+        index=succ(ind);
+        for(int i=0;i<temp;i++){
+            sum+=index;
+            index=succ(index);
+        }
+        return sum+ind;
+    }
+    int succ(int x){
+        return succ.get(x);
+    }
+}
+class Solution2{
+    int binaryLifting[][];
+    long sumLifting[][];
+    int depth[];
+    ArrayList<Integer> childOf;
+    int n;
+    int HEIGHT=35;
+    public long getMaxFunctionValue(List<Integer> receiver, long k){
+        n=receiver.size();
+        childOf=new ArrayList<Integer>(receiver);
+        binaryLifting=new int[n][HEIGHT];
+        sumLifting=new long[n][HEIGHT];
+        depth=new int[n];
+        fillBinaryLifting();
+        return solve(k);
+    }
+    long solve(long k){
+        long max=0;
+        for(int i=0;i<n;i++){
+            long sum=getSum(i,k)+i;
+            max=Math.max(max,sum);
+        }
+        return max;
+    }
+    long getSum(int i, long k){
+        int index=i, level=0;
+        long sum=0;
+        while(k>0){
+            if((k&1)==1){
+                sum+=sumLifting[i][level];
+                i=binaryLifting[i][level];
+            }
+            ++level;
+            k=k>>1;
+        }
+        return sum;
+    }
+    void fillBinaryLifting(){
+        HashSet<Integer> visited=new HashSet<Integer>();
+        for(int i[]:binaryLifting)Arrays.fill(i,-1);
+        for(int i=0;i<n;i++){
+            if(!visited.contains(i)){
+                dfs(i,childOf.get(i),visited);
+            }
+        }
+        binaryLifting();
+        // printBinaryLifting();
+    }
+    void printBinaryLifting(){
+        int c=0;
+        // for(int i[]:binaryLifting){
+        for(long i[]:sumLifting){
+            System.out.println();
+            System.out.print(c+++": ");
+            for(int j=0;j<5;j++){
+                System.out.print(i[j]+" ");
+            }
+        }
+    }
+    void binaryLifting(){
+        for(int level=1;level<HEIGHT;level++){
+            for(int node=0;node<n;node++){
+                if(binaryLifting[node][level-1]==-1)continue;
+                binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+                sumLifting[node][level]=sumLifting[node][level-1]+sumLifting[binaryLifting[node][level-1]][level-1];
+            }
+        }
+    }
+    void dfs(int currNode, int par, HashSet<Integer>  visited){
+        visited.add(currNode);
+        depth[currNode]=depth[par]+1;
+        binaryLifting[currNode][0]=par;
+        sumLifting[currNode][0]=par;
+        if(childOf.get(currNode)!=par){
+            dfs(childOf.get(currNode),currNode,visited);
+        }
+    }
+}
+  ```
+</details>
