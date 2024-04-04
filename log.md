@@ -1058,7 +1058,7 @@ public class DistanceQueries {
 
 ### Day 2: April 3, 2024
 
-**Today's Progress**: Successfully solved a long time upsolve backlog problem, [link]((https://leetcode.com/problems/maximize-value-of-function-in-a-ball-passing-game/))
+**Today's Progress**: Successfully solved a long time upsolve backlog problem (Maximize value of Function in a ball passing game), [link]((https://leetcode.com/problems/maximize-value-of-function-in-a-ball-passing-game/))
 
 **Thoughts:** Really enjoyed solving this problem, this problem led me to explore the concept of binary jumping. Understanding this problem is easy, however, the trick is in the implementation, where we have to optimize space as well as time. If you see the question, you can clearly, see the recursive pattern. I did too! and used the recursion. And as expected, started failing when the test cases were going to the higher limit. So, too the next step, memoised the recursive steps (dynamic programming). So, as expected, this went far, however started failing for higher limit test cases(higher than the previous), due to space. See, in the question, the value of k is 10^10, and arrays can't go with size that high. So, initially, I was surprised, because, I sincerely thought, this was a small problem, why is it failing, took multiple attempts to solve it, even tried iterative dp and tried to minimize the array space as much as possible, however, I wasn't able to get all the test cases accepted. So, I started researching the solutions, since editorial is not there. Then, I came across binary jumping. Once, I started taking this problem as a graph problem, lots of roadblocks automatically broke. First, I used floyd, circle finding algorithm (its not that complicated, infact highly intuitive. refer this), proceeded to find cycle of the input nodes, store them in hashset, then for each node, I calculated the solution and found the max. It passed nearly all the test, but not all! I explored, as to where I went wrong, I used this visualizer to analyse the input, and instantly got to know, where I went wrong, I assumed, that the whole graph, will be a single connected component, however, this input contained multiple connected components. So, now if I only use floyd's algorithm to solve, I would have to traverse and save each cycle, the cycle's sum and then proceed, which will make it complex and also, time complexity will be compromised (first, in order to search, if the nodes are in cycle or not, we will have to go through all the cycles, saved in hashset). Therefore, used the plain old, binary jumping, in its simplest form, and voila! it worked. If you are getting a bit confused reading this, I understand, I haven't explained in great detail and skipped the deeper parts, as its a rough high level overview. However, I have uploaded the three big approaches I was working on, which I feel, is better than the big ass explaination.
 
@@ -1404,4 +1404,478 @@ class Solution2{
     }
 }
   ```
+</details>
+
+### Day 3: April 4, 2024
+
+**Today's Progress**: Solved this really challenging codeforces problem named Duff Army [link](https://codeforces.com/contest/588/problem/E)
+
+**Thoughts**: Like the previous problems, listed above, this is also a variation of binary jumping problem. The problem was, to find the lowest 10 people, between a and b node. So implementing the binary jumping algorithm, by processing and storing the result, and then answering the query. 
+
+**Link(s) to work**: Below are the implementations I tried.
+
+<details>
+  <summary>Non binary jumping technique, passing 30 testcases</summary>
+  
+  ```java
+
+
+import javax.xml.crypto.Data;
+import java.io.*;
+import java.util.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class DuffArmy5 {
+    static int MAX=(int)10e5+5;
+    static int HEIGHT=(int)(Math.log(MAX)/Math.log(2))+1;
+    static BufferedReader x;
+    static int depth[]=new int[MAX];
+    static int noOfPeople[];
+    static DataStructure lowestTenPeople[];
+    static int binaryLifting[][]=new int[MAX][HEIGHT];
+    static int n;
+    static ArrayList<Integer> tree[]=new ArrayList[MAX];
+    static ArrayList<Integer> p[];
+    static Tree T;
+    static PrintWriter pw=new PrintWriter(System.out);
+    public static void main(String[] args)throws IOException {
+        URL url = new URL("http://example.com/api/endpoint");
+
+
+        String file="D:\\usaco.guide\\binaryLifting\\testFile1.txt";
+        x=new BufferedReader(new InputStreamReader(System.in));
+//        x=new BufferedReader(new FileReader(file));
+        StringTokenizer st=new StringTokenizer(x.readLine());
+        n=Integer.parseInt(st.nextToken());
+        int m=Integer.parseInt(st.nextToken());
+        int q=Integer.parseInt(st.nextToken());
+        p=new ArrayList[n+1];
+        noOfPeople=new int[n+1];
+        lowestTenPeople=new DataStructure[n+1];
+        for(int i=0;i<MAX;i++){
+            tree[i]=new ArrayList<>();
+            if(i<= n){
+                p[i]=new ArrayList<>();
+                lowestTenPeople[i]=new DataStructure();
+            }
+        }
+        for(int i=0;i<n-1;i++){
+            st=new StringTokenizer(x.readLine());
+            int u=Integer.parseInt(st.nextToken());
+            int v=Integer.parseInt(st.nextToken());
+            tree[u].add(v);
+            tree[v].add(u);
+        }
+        st=new StringTokenizer(x.readLine());
+        for(int i=1;i<=m;i++){
+            int city=Integer.parseInt(st.nextToken());
+            p[city].add(i);
+            lowestTenPeople[city].add(i);
+        }
+        for(int i=1;i<=n;i++){
+            lowestTenPeople[i].restructures();
+            if(p[i].size()>10){
+                ArrayList<Integer> temp=new ArrayList<>();
+                for(int j=0;j<10;j++){
+                    temp.add(p[i].get(j));
+                }
+                p[i]=new ArrayList<>(temp);
+            }
+        }
+        T=new Tree();
+//        T.printLowestTenPeople();
+        for(int i=0;i<q;i++){
+            st=new StringTokenizer(x.readLine());
+            int v=Integer.parseInt(st.nextToken());
+            int u=Integer.parseInt(st.nextToken());
+            int a=Integer.parseInt(st.nextToken());
+            getoutput1(v,u,a);
+        }
+        pw.close();
+    }
+    static void getoutput1(int v, int u, int a){
+        int lca=T.LCA(v,u);
+        int people1=noOfPeople[v]-noOfPeople[lca];
+        int people2=noOfPeople[u]-noOfPeople[lca];
+        int people=people1+people2+(p[lca].size());
+        int k=Math.min(a,people);
+
+        // get the just front child of lca, in both cases, remove values from a,b of noofpeople and thk
+        // gets really complex, also, space takes up a lot.
+
+        DataStructure temp1=new DataStructure();
+        DataStructure temp2=new DataStructure();
+        temp1.add(lowestTenPeople[lca]);
+        System.out.println(temp1.value);
+        temp1.remove(lowestTenPeople[v]);
+//        System.out.println(temp1);
+//        temp2.add(lowestTenPeople[u]);
+//        temp2.remove(lowestTenPeople[lca]);
+        temp1.remove(lowestTenPeople[u]);
+//        ArrayList<Integer> temp=merge(temp1.value,temp2.value);
+        ArrayList<Integer> tempp=merge(temp1.value,p[lca]);
+        tempp=merge(tempp,p[lca]);
+        k=Math.min(k,tempp.size());
+        pw.print(k+" ");
+        for(int i=0;i<k;i++){
+            pw.print(tempp.get(i)+" ");
+        }
+        pw.println();
+    }
+    static ArrayList<Integer> merge(ArrayList<Integer> arr1, ArrayList<Integer> arr2) {
+        int i = 0, j = 0, k = 0;
+        ArrayList<Integer> temp=new ArrayList<>();
+        int n1=arr1.size();
+        int n2=arr2.size();
+        while (i<n1 && j <n2 && temp.size()<=10)
+        {
+            if (arr1.get(i) < arr2.get(j))
+                temp.add(arr1.get(i++));
+            else
+                temp.add(arr2.get(j++));
+        }
+
+        while (i < n1 && temp.size()<=10)
+            temp.add(arr1.get(i++));
+
+        while (j < n2 && temp.size()<=10)
+            temp.add(arr2.get(j++));
+
+        return temp;
+    }
+    static class Tree extends DuffArmy5 {
+        Tree(){
+            dfs(1,0);
+        }
+        static int LCA(int a, int b) {
+            if(depth[a]>depth[b]){
+                int temp=a;
+                a=b;
+                b=temp;
+            }
+            // depth of a is less than depth of b
+            b=jump(b,depth[b]-depth[a]);
+            if(a==b){
+                return a;
+            }
+            for(int i=HEIGHT-1;i>=0;i--){
+                if(binaryLifting[a][i]!=binaryLifting[b][i]){
+                    a=binaryLifting[a][i];
+                    b=binaryLifting[b][i];
+                }
+            }
+            return binaryLifting[a][0];
+        }
+        static int jump(int a, int height){
+            int level=0;
+            while(height!=0){
+                if((height&1)==1){
+                    a=binaryLifting[a][level];
+                }
+                level+=1;
+                height=height>>1;
+            }
+            return a;
+        }
+        static void printBinaryLifting(){
+            for(int i=0;i<=n;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(binaryLifting[i][j]+" ");
+                }
+                System.out.println();
+            }
+        }
+        static void printLowestTenPeople(){
+            for(DataStructure i:lowestTenPeople){
+                System.out.println(i.value);
+            }
+        }
+        static void binaryLifting(){
+            for(int i=1;i<MAX;i++){
+                for(int level=1;level<HEIGHT;level++){
+                    binaryLifting[i][level]=binaryLifting[binaryLifting[i][level-1]][level-1];
+                }
+            }
+        }
+        static void dfs(int node, int par){
+            binaryLifting[node][0]=par;
+            depth[node]=depth[par]+1;
+            noOfPeople[node]=noOfPeople[par]+(p[node].size());
+            for(int level=1;level<HEIGHT;level++){
+                binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+            }
+            for(int childNode:tree[node]){
+                if(childNode==par)continue;
+                dfs(childNode, node);
+                lowestTenPeople[node].value=new ArrayList<>(merge(lowestTenPeople[node].value,lowestTenPeople[childNode].value));
+            }
+        }
+    }
+    static class DataStructure{
+        ArrayList<Integer> value;
+        DataStructure(){
+            value=new ArrayList<>();
+        }
+        void add(int a){
+            value.add(a);
+        }
+        void add(List<Integer> a){
+            value.addAll(a);
+        }
+        void add(DataStructure d){
+            value.addAll(d.value);
+        }
+        void restructure(){
+            Collections.sort(value);
+            if(value.size()<=10)return;
+            ArrayList<Integer> temp=new ArrayList<>(value);
+            value=new ArrayList<>();
+            for(int i=0;i<10;i++){
+                value.add(temp.get(i));
+            }
+        }
+        void restructures(){
+            if(value.size()<=10)return;
+            ArrayList<Integer> temp=new ArrayList<>(value);
+            value=new ArrayList<>();
+            for(int i=0;i<10;i++){
+                value.add(temp.get(i));
+            }
+        }
+        void remove(DataStructure remove){
+            ArrayList<Integer> parent=new ArrayList<>(value);
+            ArrayList<Integer> removeThese=new ArrayList<>(remove.value);
+            value=new ArrayList<>();
+            int rem=0, par=0;
+            while(par<parent.size()&&rem<removeThese.size()){
+                while(rem<removeThese.size()&&par<parent.size()&&parent.get(par)==removeThese.get(rem)){
+                    ++par;
+                    ++rem;
+                    if(value.size()>10)break;
+                }
+                while(rem<removeThese.size()&&par<parent.size()&&parent.get(par)<removeThese.get(rem)){
+                    value.add(parent.get(par));
+                    ++par;
+                    if(value.size()>10)break;
+                }
+                while(rem<removeThese.size()&&par<parent.size()&&removeThese.get(rem)<parent.get(par)){
+                    ++rem;
+                    if(value.size()>10)break;
+                }
+                if(value.size()>10)break;
+            }
+            while(par<parent.size()&&value.size()<=10){
+                value.add(parent.get(par++));
+            }
+        }
+    }
+}
+
+
+  ```
+
+</details>
+<details>
+  <summary>Accepted Solution</summary>
+  
+  ```java
+  
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.StringTokenizer;
+
+public class DuffInTheArmyAccepted {
+    static int n;
+    static ArrayList<Integer> tree[];
+    static ArrayList<Integer> peopleAt[];
+    static ArrayList<Integer> peopleBinaryLifting[][];
+    static Tree t;
+    public static void main(String[] args)throws IOException {
+        BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+        PrintWriter pw=new PrintWriter(System.out);
+        StringTokenizer st=new StringTokenizer(x.readLine());
+        n=Integer.parseInt(st.nextToken());
+        peopleBinaryLifting=new ArrayList[n+1][20];
+        int m=Integer.parseInt(st.nextToken());
+        int q=Integer.parseInt(st.nextToken());
+        tree=new ArrayList[n+1];
+        peopleAt=new ArrayList[n+1];
+        for(int city=0;city<=n;city++){
+            tree[city]=new ArrayList<>();
+            peopleAt[city]=new ArrayList<>();
+        }
+        for(int i=0;i<n-1;i++){
+            st=new StringTokenizer(x.readLine());
+            int a=Integer.parseInt(st.nextToken());
+            int b=Integer.parseInt(st.nextToken());
+            tree[a].add(b);
+            tree[b].add(a);
+        }
+        st=new StringTokenizer(x.readLine());
+        for(int i=1;i<=m;i++){
+            int city=Integer.parseInt(st.nextToken());
+            peopleAt[city].add(i);
+        }
+        for(int city=1;city<=n;city++){
+            ArrayList<Integer> arr=peopleAt[city];
+            if(arr.size()<=10)continue;
+            ArrayList<Integer> new_arr=new ArrayList<>();
+            for(int i=0;i<10;i++){
+                new_arr.add(arr.get(i));
+            }
+            peopleAt[city]=new ArrayList<>(new_arr);
+        }
+        t=new Tree();
+//        t.printBinaryLiftingPeople();
+        for(int i=0;i<q;i++){
+            st=new StringTokenizer(x.readLine());
+            int a=Integer.parseInt(st.nextToken());
+            int b=Integer.parseInt(st.nextToken());
+            int k=Integer.parseInt(st.nextToken());
+            ArrayList<Integer> answer=solve(a,b);
+            int kk=Math.min(k,answer.size());
+            pw.print(kk+" ");
+            for(int j=0;j<kk;j++){
+                pw.print(answer.get(j)+" ");
+            }
+            pw.println();
+        }
+        pw.close();
+    }
+    static ArrayList<Integer> solve(int a, int b){
+        int lca=t.LCA(a, b);
+        ArrayList<Integer> people=new ArrayList<>();
+        if(lca!=a)people.addAll(peopleAt[a]);
+        if(lca!=b)people.addAll(peopleAt[b]);
+        people.addAll(getPeople(a, t.depth[a]-t.depth[lca]-1));
+        people.addAll(getPeople(b, t.depth[b]-t.depth[lca]-1));
+        people.addAll(peopleAt[lca]);
+//        System.out.println(a+","+b+": "+people);
+        Collections.sort(people);
+        return people;
+    }
+    static ArrayList<Integer> getPeople(int a, int height){
+        ArrayList<Integer> list=new ArrayList<>();
+        int level=0;
+        while(height>0){
+            if((height&1)==1){
+                list.addAll(peopleBinaryLifting[a][level]);
+                a=t.binaryLifting[a][level];
+            }
+            level+=1;
+            height=height>>1;
+        }
+        return list;
+    }
+    static class Tree extends DuffInTheArmyAccepted {
+        static int HEIGHT=20;
+        static int depth[];
+        static int binaryLifting[][];
+        Tree(){
+            binaryLifting=new int[n+1][20];
+            depth=new int[n+1];
+            dfs(1,0);
+        }
+        static int LCA(int a, int b) {
+            if(depth[a]>depth[b]){
+                int temp=a;
+                a=b;
+                b=temp;
+            }
+            // depth of a is less than depth of b
+            b=jump(b,depth[b]-depth[a]);
+            if(a==b){
+                return a;
+            }
+            for(int i=HEIGHT-1;i>=0;i--){
+                if(binaryLifting[a][i]!=binaryLifting[b][i]){
+                    a=binaryLifting[a][i];
+                    b=binaryLifting[b][i];
+                }
+            }
+            return binaryLifting[a][0];
+        }
+        static int jump(int a, int height){
+            int level=0;
+            while(height!=0){
+                if((height&1)==1){
+                    a=binaryLifting[a][level];
+                }
+                level+=1;
+                height=height>>1;
+            }
+            return a;
+        }
+        static void printBinaryLifting(){
+            for(int i=0;i<=n;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(binaryLifting[i][j]+" ");
+                }
+                System.out.println();
+            }
+        }
+        static void printBinaryLiftingPeople(){
+            for(int i=0;i<=n;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(peopleBinaryLifting[i][j]+" ");
+                }
+                System.out.println();
+            }
+        }
+        static boolean specialCase(ArrayList<Integer> mergeList){
+            return mergeList.size()<10;
+        }
+        static ArrayList<Integer> combine(ArrayList<Integer> list1, ArrayList<Integer> list2){
+            int i = 0, j = 0;
+            ArrayList<Integer> mergedList=new ArrayList<>();
+            if(list1==null)list1=new ArrayList<>();
+            if(list2==null)list2=new ArrayList<>();
+            while (i < list1.size() && j < list2.size() && specialCase(mergedList)) {
+                if (list1.get(i) <= list2.get(j)) {
+                    mergedList.add(list1.get(i));
+                    i++;
+                } else {
+                    mergedList.add(list2.get(j));
+                    j++;
+                }
+            }
+
+            // Add remaining elements from the first list
+            while (i < list1.size()&&specialCase(mergedList)) {
+                mergedList.add(list1.get(i));
+                i++;
+            }
+
+            // Add remaining elements from the second list
+            while (j < list2.size()&&specialCase(mergedList)) {
+                mergedList.add(list2.get(j));
+                j++;
+            }
+            return mergedList;
+        }
+        static void dfs(int node, int par){
+            binaryLifting[node][0]=par;
+            depth[node]=depth[par]+1;
+            peopleBinaryLifting[node][0]=new ArrayList<>(peopleAt[par]);
+            for(int level=1;level<HEIGHT;level++){
+                binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+                peopleBinaryLifting[node][level]=new ArrayList<>(combine(peopleBinaryLifting[node][level-1],peopleBinaryLifting[binaryLifting[node][level-1]][level-1]));
+            }
+            for(int childNode:tree[node]){
+                if(childNode==par)continue;
+                dfs(childNode, node);
+            }
+        }
+    }
+}
+
+```
 </details>
