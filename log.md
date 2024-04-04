@@ -1410,7 +1410,7 @@ class Solution2{
 
 **Today's Progress**: Solved this really challenging codeforces problem named Duff Army [link](https://codeforces.com/contest/588/problem/E)
 
-**Thoughts**: Like the previous problems, listed above, this is also a variation of binary jumping problem. The problem was, to find the lowest 10 people, between a and b node. So implementing the binary jumping algorithm, by processing and storing the result, and then answering the query. 
+**Thoughts**: Like the previous problems, listed above, this is also a variation of binary jumping problem. The problem was, to find the lowest 10 people, between a and b node. So implementing the binary jumping algorithm, by processing and storing the result, and then answering the query. It wasn't that tough. The challenging part for me was, to not use this algo & still pass 30 TCs
 
 **Link(s) to work**: Below are the implementations I tried.
 
