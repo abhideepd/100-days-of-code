@@ -1879,3 +1879,992 @@ public class DuffInTheArmyAccepted {
 
 ```
 </details>
+
+### Day 4: April 5, 2024
+
+**Today's Progress**: 
+Solved the below three algorithmic problems: 
+1. [Planet Queries 2](https://cses.fi/problemset/task/1160)
+2. [MaxFlow](https://usaco.org/index.php?page=viewproblem2&cpid=576)
+3. [Cyclic Array](https://cses.fi/problemset/task/1191/)
+
+**Thoughts**: 
+<details>
+  <summary>Planet Queries 2</summary>
+Well, this question, looks simple, to find the distance of travel, from planet a to b, if it ain't possible, then, print -1. When you apply brute force, you will soon understand that you need ancestor, and thereby if you are a bit familiar with Binary Jumping Alogirithm, you can clearly see the use case here. However, the trick was, for the cycles, that exist, how can we navigate that stuff ? Turns out, its not that hard, if you try artificially on paper, creating the binary jumping matrix, for a graph with trees as well as cycles. A simple implementation of binary jumping solves the problem. After this, I faced another error, what if, in the cycle, the point a is in front of point b, then I have to travel back to point b, for which, I have to take the length of cycle and substract the distance. Well, it took me long time to figure it out, it would not take so much time, if you are familiar with solving graph problems. Overall, this was a nice exercise, to wrap my head around functional graphs and directional graphs with trees and cycles.
+  <details>
+    <summary>code</summary>
+
+  ```java
+
+import java.io.*;
+import java.util.StringTokenizer;
+
+public class PlanetQueries2 {
+    static Kattio x=new Kattio();
+    static PrintWriter pw=new PrintWriter(System.out);
+    static int n;
+    static int q;
+    static int arr[];
+    static int binaryLifting[][];
+    static int len[];
+
+    public static void main(String[] args) {
+        getInputForPresprocessing();
+        binaryLifting=new int[n+1][20];
+        len=new int[n+1];
+        preprocess();
+        query();
+        pw.close();
+    }
+    static void preprocess(){
+        for(int i=1;i<=n;i++){
+            binaryLifting[i][0]=arr[i];
+        }
+        boolean visited[]=new boolean[n+1];
+        for(int i=1;i<=n;i++){
+            if(!visited[i]){
+                dfs(i,visited);
+            }
+        }
+    }
+    static void dfs(int node, boolean visited[]){
+        if(visited[node]){
+            return;
+        }
+        visited[node]=true;
+        dfs(arr[node],visited);
+        len[node]=len[binaryLifting[node][0]]+1;
+        for(int level=1;level<20;level++){
+            binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+        }
+    }
+    static void query(){
+        StringBuilder output=new StringBuilder();
+        for(int i=0;i<q;i++){
+            int a=x.nextInt();
+            int b=x.nextInt();
+            int aa=jump(a,len[a]);  // in case, a is in front of b
+            if(jump(a,len[a]-len[b])==b){
+                pw.println(len[a]-len[b]);
+            }
+            else if(jump(aa,len[aa]-len[b])==b){
+                pw.println((len[aa]-len[b])+len[a]);
+            }
+            else{
+                pw.println(-1);
+            }
+        }
+    }
+    static int jump(int a, int dist){
+        if(dist<0)return -1;
+        int level=0;
+        while(dist!=0){
+            if((dist&1)==1){
+                a=binaryLifting[a][level];
+            }
+            ++level;
+            dist=dist>>1;
+        }
+        return a;
+    }
+    static void getInputForPresprocessing(){
+        n=x.nextInt();
+        q=x.nextInt();
+        arr=new int[n+1];
+        for(int i=1;i<=n;i++){
+            arr[i]=x.nextInt();
+        }
+    }
+
+    static class Kattio extends PrintWriter {
+        private BufferedReader r;
+        private StringTokenizer st;
+        // standard input
+        public Kattio() { this(System.in, System.out); }
+        public Kattio(InputStream i, OutputStream o) {
+            super(o);
+            r = new BufferedReader(new InputStreamReader(i));
+        }
+        // USACO-style file input
+        public Kattio(String problemName) throws IOException {
+            super(problemName + ".out");
+            r = new BufferedReader(new FileReader(problemName + ".in"));
+        }
+        // returns null if no more input
+        public String next() {
+            try {
+                while (st == null || !st.hasMoreTokens())
+                    st = new StringTokenizer(r.readLine());
+                return st.nextToken();
+            } catch (Exception e) {}
+            return null;
+        }
+        public int nextInt() { return Integer.parseInt(next()); }
+        public double nextDouble() { return Double.parseDouble(next()); }
+        public long nextLong() { return Long.parseLong(next()); }
+    }
+}
+
+```
+    
+  </details>
+</details>
+<details>
+  <summary>MaxFlow</summary>
+  Well, this was a challenging problem, took me some time to understand and then implement it. First, started with the the bruteforce way, simple, which shows quickly, that you need binary jumping in order to find lca or go the the kth Ancestor of a node, in a tree. However, the question was a bit unique, because, you needed some kind of a prefix sum implementation, since, milk flowing from a to b, goes through lca of a and b too, while doing the final addition in prefix sum, we have to make sure, not to add this value, to the parent of lca. This was a bit challenging to wrap heads around. However, once you start implementing, it becomes quite easy. The prefix sum can be done in two ways, either do a bfs and store the traversal in array, or do a dfs and do the prefix sum, as tail recursion. The later one was actually ingenious, which I found in the editoral. It didn't cross my mind, as to how elegent this method was.!
+  <details>
+    <summary>code with bfs</summary>
+
+  ```java
+
+import java.io.*;
+import java.util.*;
+
+public class MaxFlow2 {
+    static PrintWriter pw;
+    static BufferedReader x;
+    static int MAX=50001;
+    static ArrayList<Integer> tree[]=new ArrayList[MAX];
+    static int HEIGHT=(int)(Math.log(MAX)/Math.log(2))+1;
+    static int binaryLifting[][]=new int[MAX][HEIGHT];
+    static int depth[]=new int[MAX];
+    static ArrayList<Integer> breadFirstOrder=new ArrayList<>();
+    static Tree T;
+    static ArrayList<Integer> childNodes=new ArrayList<>();
+    static int n;
+    static void ininitalize(){
+        x=new BufferedReader(new InputStreamReader(System.in));
+        pw=new PrintWriter(System.out);
+    }
+    public static void main(String[] args) throws IOException {
+        x=new BufferedReader(new FileReader("maxflow.in"));
+        pw=new PrintWriter("maxflow.out");
+//        ininitalize();
+        StringTokenizer st=new StringTokenizer(x.readLine());
+        int N=Integer.parseInt(st.nextToken());
+        n=N;
+        int K=Integer.parseInt(st.nextToken());
+        for(int i=0;i<MAX;i++){
+            tree[i]=new ArrayList<>();
+        }
+        for(int i=0;i<N-1;i++){
+            st=new StringTokenizer(x.readLine());
+            int a=Integer.parseInt(st.nextToken());
+            int b=Integer.parseInt(st.nextToken());
+            tree[a].add(b);
+            tree[b].add(a);
+        }
+        T=new Tree();
+        int ans[]=new int[N+1];
+        for(int i=0;i<K;i++){
+            st=new StringTokenizer(x.readLine());
+            int a=Integer.parseInt(st.nextToken());
+            int b=Integer.parseInt(st.nextToken());
+            int lca=T.LCA(a,b);
+            --ans[binaryLifting[lca][0]];
+            --ans[lca];
+            ++ans[a];
+            ++ans[b];
+        }
+        for(int i=breadFirstOrder.size()-1;i>=0;i--){
+            int node=breadFirstOrder.get(i);
+            int parent=binaryLifting[node][0];
+            ans[parent]+=ans[node];
+        }
+        int max=0;
+        for(int i:ans)max=Math.max(i,max);
+        pw.println(max);
+        pw.close();
+    }
+    static class Tree extends MaxFlow2 {
+        Tree(){
+            dfs(1,0);
+            bfs();
+        }
+        static void bfs(){
+            Queue<Integer> q=new LinkedList<>();
+            q.add(1);
+            while(!q.isEmpty()){
+                int node=q.poll();
+                breadFirstOrder.add(node);
+                for(int child:tree[node]){
+                    if(binaryLifting[child][0]==node)
+                        q.add(child);
+                }
+            }
+        }
+        static int LCA(int a, int b) {
+            if(depth[a]>depth[b]){
+                int temp=a;
+                a=b;
+                b=temp;
+            }
+            // depth of a is less than depth of b
+            b=jump(b,depth[b]-depth[a]);
+            if(a==b){
+                return a;
+            }
+            for(int i=HEIGHT-1;i>=0;i--){
+                if(binaryLifting[a][i]!=binaryLifting[b][i]){
+                    a=binaryLifting[a][i];
+                    b=binaryLifting[b][i];
+                }
+            }
+            return binaryLifting[a][0];
+        }
+        static int jump(int a, int height){
+            int level=0;
+            while(height!=0){
+                if((height&1)==1){
+                    a=binaryLifting[a][level];
+                }
+                level+=1;
+                height=height>>1;
+            }
+            return a;
+        }
+        static void printBinaryLifting(){
+            for(int i=0;i<=n;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(binaryLifting[i][j]+" ");
+                }
+                System.out.println();
+            }
+        }
+        static void binaryLifting(){
+            for(int i=1;i<MAX;i++){
+                for(int level=1;level<HEIGHT;level++){
+                    binaryLifting[i][level]=binaryLifting[binaryLifting[i][level-1]][level-1];
+                }
+            }
+        }
+        static void dfs(int node, int par){
+            binaryLifting[node][0]=par;
+            depth[node]=depth[par]+1;
+            if(tree[node].size()==1){
+                childNodes.add(node);
+            }
+            for(int level=1;level<HEIGHT;level++){
+                binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+            }
+            for(int childNode:tree[node]){
+                if(childNode==par)continue;
+                dfs(childNode, node);
+            }
+        }
+    }
+}
+
+  ```
+
+  </details>
+  <details>
+    <summary>code without bfs</summary>
+
+  ```java
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class MaxFlow1 {
+    static BufferedReader x;
+    static PrintWriter pw;
+    static int MAX=50001;
+    static ArrayList<Integer> tree[]=new ArrayList[MAX];
+    static int n;
+    static int HEIGHT=(int)(Math.log(MAX)/Math.log(2))+1;
+    static int binaryLifting[][]=new int[MAX][HEIGHT];
+    static int depth[]=new int[MAX];
+    static Tree T;
+    static int S[];
+    static int E[];
+    static int ans[];
+
+    public static void main(String[] args)throws IOException {
+        x=new BufferedReader(new InputStreamReader(System.in));
+        pw=new PrintWriter(System.out);
+        initializeInput();
+        StringTokenizer st=new StringTokenizer(x.readLine());
+        int N=Integer.parseInt(st.nextToken());
+        n=N;
+        S=new int[n+1];
+        E=new int[n+1];
+        ans=new int[n+1];
+        int K=Integer.parseInt(st.nextToken());
+        for(int i=0;i<=N;i++){
+            tree[i]=new ArrayList<>();
+        }
+        for(int i=0;i<N-1;i++){
+            st=new StringTokenizer(x.readLine());
+            int a=Integer.parseInt(st.nextToken());
+            int b=Integer.parseInt(st.nextToken());
+            tree[a].add(b);
+            tree[b].add(a);
+        }
+        T=new Tree();
+        for(int i=0;i<K;i++){
+            st=new StringTokenizer(x.readLine());
+            int a=Integer.parseInt(st.nextToken());
+            int b=Integer.parseInt(st.nextToken());
+            int lca=T.LCA(a,b);
+            ++ans[a];
+            ++ans[b];
+            --ans[lca];
+            --ans[binaryLifting[lca][0]];
+            ++S[a];
+            ++S[b];
+            ++E[lca];
+        }
+        /*
+         * below are two methods, solve and solve1, both of them work
+         * solve1: don't requires in edge and out edge arrays, only the ans array is sufficient
+         */
+//        solve(1,0);
+        solve1(1,0);
+        int max=0;
+        for(int i:ans)max=Math.max(i,max);
+        pw.println(max);
+        pw.close();
+    }
+    static int solve(int node, int parent){
+        int sumOfChildNodesOfCurrentNode=0;
+        for(int child:tree[node]){
+            if(parent!=child){
+                sumOfChildNodesOfCurrentNode+=solve(child,node);
+            }
+        }
+        int sumAtCurrentNode=sumOfChildNodesOfCurrentNode+S[node]-E[node];
+        ans[node]=sumAtCurrentNode;
+        return sumAtCurrentNode-E[node];
+    }
+    static int solve1(int node, int parent){
+        for(int child:tree[node]){
+            if(parent!=child){
+                ans[node]+=solve1(child,node);
+            }
+        }
+        return ans[node];
+    }
+    static void initializeInput()throws IOException {
+        String in="maxflow";
+        x=new BufferedReader(new FileReader(in+".in"));
+        pw=new PrintWriter(in+".out");
+    }
+    static class Tree extends MaxFlow1 {
+        Tree(){
+            dfs(1,0);
+        }
+        static int LCA(int a, int b) {
+            if(depth[a]>depth[b]){
+                int temp=a;
+                a=b;
+                b=temp;
+            }
+            // depth of a is less than depth of b
+            b=jump(b,depth[b]-depth[a]);
+            if(a==b){
+                return a;
+            }
+            for(int i=HEIGHT-1;i>=0;i--){
+                if(binaryLifting[a][i]!=binaryLifting[b][i]){
+                    a=binaryLifting[a][i];
+                    b=binaryLifting[b][i];
+                }
+            }
+            return binaryLifting[a][0];
+        }
+        static int jump(int a, int height){
+            int level=0;
+            while(height!=0){
+                if((height&1)==1){
+                    a=binaryLifting[a][level];
+                }
+                level+=1;
+                height=height>>1;
+            }
+            return a;
+        }
+        static void printBinaryLifting(){
+            for(int i=0;i<=n;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(binaryLifting[i][j]+" ");
+                }
+                System.out.println();
+            }
+        }
+        static void binaryLifting(){
+            for(int i=1;i<MAX;i++){
+                for(int level=1;level<HEIGHT;level++){
+                    binaryLifting[i][level]=binaryLifting[binaryLifting[i][level-1]][level-1];
+                }
+            }
+        }
+        static void dfs(int node, int par){
+            binaryLifting[node][0]=par;
+            depth[node]=depth[par]+1;
+            for(int level=1;level<HEIGHT;level++){
+                binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+            }
+            for(int childNode:tree[node]){
+                if(childNode==par)continue;
+                dfs(childNode, node);
+            }
+        }
+    }
+}
+
+```
+  </details>
+</details>
+<details>
+  <summary>Cyclic Array</summary>
+Ngl, this problem fried my brains. It was, like mind expanding shit. It was equivalent to doing "legs" in the gym. I tried a lot of ways of solving this problem, but failed. Until, I gained an insight, to see it as a graph problem. Then, create a binary lifting matrix. After this, create a binarylifting matrix for the length of the subarray. After this, this is the genius part. If you observe, the highest no. of subarrays, are the no. of elements of the arrays, you can't exceed that, same for the lowest no. of subarray, which is one, you can't have less than that (well, or 0). So, why don't we binary search the solution !!! So what we will do is, guess a solution, check this solution, for all the subarrays starting from 0, 1, 2…..n. if the no of elements inside the subarray, exceeds or are same as the size of the array, then that solution is feasible, else it's not. It might be a bit complex to undestand at first, I don’t blame you, it kind of grows on you. Also, I am not an expert in writing editorials :-(
+  <details>
+    <summary>code</summary>
+
+  ```java
+
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class CyclicArray1 {
+    static FastReader x=new FastReader();
+    static int n;
+    static long length[][];
+    static int binaryLifting[][];
+    public static void main(String[] args) {
+        System.out.println(solve());
+    }
+    static int solve(){
+        n=x.nextInt();
+        long k=x.nextLong();
+        int arr[]=new int[n];
+        for(int i=0;i<n;i++)arr[i]=x.nextInt();
+        binaryLifting=new int[n][20];
+        length=new long[n][20];
+        int r=0;long sum=0;
+        for(int i:arr)sum+=i;
+        if(sum<=k)return 1;
+        sum=0;
+        for(int i=0;i<n;i++){
+            while(arr[r%n]+sum<=k){
+                sum+=arr[r%n];
+                ++r;
+            }
+            sum=sum-arr[i];
+            binaryLifting[i][0]=r%n;
+            length[i][0]=(r-i);
+        }
+        for(int level=1;level<20;level++){
+            for(int i=0;i<n;i++){
+                binaryLifting[i][level]=binaryLifting[binaryLifting[i][level-1]][level-1];
+                length[i][level]=length[i][level-1]+length[binaryLifting[i][level-1]][level-1];
+            }
+        }
+        for(int i=0;i<20;i++){
+            System.out.println(i+" "+ Arrays.toString(length[i]));
+        }
+        int l=1; r=n;
+        while(l<=r){
+            int mid=((l+r)/2);
+            if(check(mid)){
+                r=mid-1;
+            }
+            else{
+                l=mid+1;
+            }
+        }
+        return l;
+    }
+    static boolean check(int size){
+        for(int i=0;i<n;i++){
+            int temp=size, node=i, level=0;
+            long len=0;
+            while(temp>0){
+                if((temp&1)==1){
+                    len+=length[node][level];
+                    node=binaryLifting[node][level];
+                }
+                ++level;
+                temp=temp>>1;
+            }
+            if(len>=n){
+                return true;
+            }
+        }
+        return false;
+    }
+    static class FastReader {
+        final private int BUFFER_SIZE = 1 << 16;
+        private DataInputStream din;
+        private byte[] buffer;
+        private int bufferPointer, bytesRead;
+
+        public FastReader() {
+            din = new DataInputStream(System.in);
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public FastReader(String file_name) throws IOException {
+            din = new DataInputStream(new FileInputStream(file_name));
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public String nextLine() {
+            try{
+                byte[] buf = new byte[10000000]; // line length
+                int cnt = 0, c;
+                while ((c = read()) != -1) {
+                    if (c == '\n')
+                        break;
+                    buf[cnt++] = (byte) c;
+                }
+                return new String(buf, 0, cnt);
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+                return null;
+            }
+        }
+
+        public int nextInt()  {
+            int ret = 0;
+            try {
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+                do{
+                    ret = ret * 10 + c - '0';
+                }  while ((c = read()) >= '0' && c <= '9');
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public long nextLong()   {
+
+            try {
+                long ret = 0;
+                byte c = read();
+                while (c <= ' ') c = read();
+                boolean neg = (c == '-');
+                if (neg)
+                    c = read();
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (neg)
+                    return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public double nextDouble()  {
+
+            try {
+                double ret = 0, div = 1;
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (c == '.') {
+                    while ((c = read()) >= '0' && c <= '9') {
+                        ret += (c - '0') / (div *= 10);
+                    }
+                }
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        private void fillBuffer() throws IOException{
+            bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
+            if (bytesRead == -1)
+                buffer[0] = -1;
+        }
+
+        private byte read() throws IOException  {
+            try{
+                if (bufferPointer == bytesRead)
+                    fillBuffer();
+                return buffer[bufferPointer++];
+            }catch(Exception e){
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public void close() throws IOException {
+            if (din == null)
+                return;
+            din.close();
+        }
+    }
+}
+
+
+  ```
+  </details>
+  <details>
+    <summary>a small view, of my experiments</summary>
+
+  ```java
+
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+
+public class CyclicArray {
+    static int c=-1;
+    static FastReader x=new FastReader();
+    public static void main(String[] args) {
+//        System.out.println(method1());
+//        System.out.println(method3());
+        System.out.println(method4());
+    }
+    static int method3(){
+        int n=x.nextInt();
+        int k=x.nextInt();
+        int arr[]=new int[n];
+        for(int i=0;i<n;i++){
+            arr[i]=x.nextInt();
+        }
+        int sum=0, r=0;
+        int series[]=new int[n];
+        for(int l=0;l<n;l++){
+            while(sum+arr[r%n]<=k){
+                sum+=arr[r%n];
+                ++r;
+            }
+            sum-=arr[l];
+            series[l]=r%n;
+        }
+        System.out.println(Arrays.toString(series));
+        int ans=Integer.MAX_VALUE;
+        for(int i=0;i<n;i++){
+            int cnt=0, ci=i;
+            System.out.println();
+            while(ci>=i){
+                System.out.println(ci);
+                ci=series[ci];
+                ++cnt;
+            }
+            ans=Math.min(ans,cnt);
+        }
+        return ans;
+    }
+    static int method4(){
+        int n=x.nextInt();
+        long k=x.nextLong();
+        int arr[]=new int[n];
+        for(int i=0;i<n;i++)arr[i]=x.nextInt();
+        int binaryLifting[][]=new int[n][20];
+        long length[][]=new long[n][20];
+        int r=0;long sum=0;
+        for(int i:arr)sum+=i;
+        if(sum<=k)return 1;
+        sum=0;
+        for(int i=0;i<n;i++){
+            while(arr[r%n]+sum<=k){
+                sum+=arr[r%n];
+                ++r;
+            }
+            sum=sum-arr[i];
+            binaryLifting[i][0]=r%n;
+            length[i][0]=(r-i);
+        }
+        for(int level=1;level<20;level++){
+            for(int i=0;i<n;i++){
+                binaryLifting[i][level]=binaryLifting[binaryLifting[i][level-1]][level-1];
+                length[i][level]=length[i][level-1]+length[binaryLifting[i][level-1]][level-1];
+            }
+        }
+        class HelperMethod{
+            long totalNoOfElements(int startIndex, int noOfSubarrays){
+                int level=0;long noOfElements=0;
+                while(noOfSubarrays!=0){
+                    if((noOfSubarrays&1)==1){
+                        noOfElements+=length[startIndex][level];
+                        startIndex=binaryLifting[startIndex][level];
+                    }
+                    ++level;
+                     noOfSubarrays=noOfSubarrays>>1;
+                 }
+                return noOfElements;
+            }
+            boolean check(int x){
+                for(int i=0;i<n;i++){
+                    if(totalNoOfElements(i,x)>=n)return true;
+                }
+                return false;
+            }
+            void print(int arr[][]){
+                System.out.println();
+                int c=0;
+                for(int i[]:arr){
+                    System.out.print(c+++": ");
+                    for(int j:i){
+                        System.out.print(j+" ");
+                    }
+                    System.out.println();
+                }
+            }
+        }
+        int l=0; r=n;
+        HelperMethod h=new HelperMethod();
+//        h.print(binaryLifting);
+//        h.print(length);
+        while(l<r-1){
+            int mid=(l+r)/2;
+            if(h.check(mid)){
+                r=mid;
+            }
+            else{
+//                System.out.println(mid);
+                l=mid;
+            }
+        }
+        return r;
+    }
+    static int method2(){
+        class Helper implements Comparator<ArrayList<Integer>> {
+            public int compare(ArrayList<Integer> arr1, ArrayList<Integer> arr2)
+            {
+                // using compareTo() to ensure
+                return arr1.get(0).compareTo(arr2.get(0));
+            }
+        }
+        int n=x.nextInt();
+        int k=x.nextInt();
+        int arr[]=new int[n];
+        for(int i=0;i<n;i++){
+            arr[i]=x.nextInt();
+        }
+        TreeSet<ArrayList<Integer>> tm=new TreeSet<>(new Helper());
+        int sum=0, r=0;
+        for(int i=0;i<n;i++){
+            while(sum+arr[r%n]<=k){
+                sum+=arr[r%n];
+                ++r;
+                System.out.println(sum);
+            }
+            ArrayList<Integer> temp=new ArrayList<>();
+            temp.add(i);
+            temp.add(r%n);
+            tm.add(temp);
+            sum-=arr[i];
+        }
+        System.out.println(tm);
+        return 0;
+    }
+
+    static int method1(){
+        class method{
+            int getAnswer(long k, Queue<Integer> q){
+                long sum=0; int ans=0;
+                ++c;
+                int tempc=c;
+                ArrayList<Integer> arr2=new ArrayList<>();
+                ArrayList<Integer> arr=new ArrayList<>();
+                arr2.add(c);
+                for(int i:q){
+                    if(sum+i>k){
+                        arr2.add(tempc%q.size());
+                        System.out.print(arr);
+                        arr=new ArrayList<>();
+                        sum=0;
+                        ++ans;
+                    }
+                    arr.add(i);
+                    ++tempc;
+                    sum+=i;
+                }
+                System.out.print(arr+" ");
+                for(int i:arr2){
+                    System.out.print(i+"->");
+                }
+                if(sum!=0){
+                    ++ans;
+                }
+                return ans;
+            }
+        }
+        int n=x.nextInt();
+        long k=x.nextLong();
+        Queue<Integer> q=new LinkedList<>();
+        for(int i=0;i<n;i++){
+            int temp=x.nextInt();
+            q.add(temp);
+        }
+        int ans=Integer.MAX_VALUE;
+        for(int i=0;i<n;i++){
+            System.out.println();
+            ans=Math.min(ans, new method().getAnswer(k,q));
+            q.add(q.poll());
+        }
+        return ans;
+    }
+
+    static class FastReader {
+        final private int BUFFER_SIZE = 1 << 16;
+        private DataInputStream din;
+        private byte[] buffer;
+        private int bufferPointer, bytesRead;
+
+        public FastReader() {
+            din = new DataInputStream(System.in);
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public FastReader(String file_name) throws IOException {
+            din = new DataInputStream(new FileInputStream(file_name));
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public String nextLine() {
+            try{
+                byte[] buf = new byte[10000000]; // line length
+                int cnt = 0, c;
+                while ((c = read()) != -1) {
+                    if (c == '\n')
+                        break;
+                    buf[cnt++] = (byte) c;
+                }
+                return new String(buf, 0, cnt);
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+                return null;
+            }
+        }
+
+        public int nextInt()  {
+            int ret = 0;
+            try {
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+                do{
+                    ret = ret * 10 + c - '0';
+                }  while ((c = read()) >= '0' && c <= '9');
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public long nextLong()   {
+
+            try {
+                long ret = 0;
+                byte c = read();
+                while (c <= ' ') c = read();
+                boolean neg = (c == '-');
+                if (neg)
+                    c = read();
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (neg)
+                    return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public double nextDouble()  {
+
+            try {
+                double ret = 0, div = 1;
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (c == '.') {
+                    while ((c = read()) >= '0' && c <= '9') {
+                        ret += (c - '0') / (div *= 10);
+                    }
+                }
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        private void fillBuffer() throws IOException{
+            bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
+            if (bytesRead == -1)
+                buffer[0] = -1;
+        }
+
+        private byte read() throws IOException  {
+            try{
+                if (bufferPointer == bytesRead)
+                    fillBuffer();
+                return buffer[bufferPointer++];
+            }catch(Exception e){
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public void close() throws IOException {
+            if (din == null)
+                return;
+            din.close();
+        }
+    }
+}
+
+```
+
+  </details>
+</details>
