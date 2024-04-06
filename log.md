@@ -2868,3 +2868,574 @@ public class CyclicArray {
 
   </details>
 </details>
+
+### Day 5: April 6, 2024
+
+**Today's Progress**: 
+Solved the below three algorithmic problems: 
+1. [The Bovine Shuffle](https://usaco.org/index.php?page=viewproblem2&cpid=764)
+2. [Leetcode: Minimim Edge Weights Equilibrium Queries in a Tree](https://leetcode.com/problems/minimum-edge-weight-equilibrium-queries-in-a-tree/description/)
+
+**Thoughts**: 
+<details>
+  <summary>The Bovine Shuffle</summary>
+It’s a problem, complex to understand, however, once you understand it, and have some familiarity with functional graphs and floyd's algorithm, implementation is a breeze. Basically, the answer is sum of all the cycle sizes. Because, those are the positions, which will never be empty after a single shift or n no. of shifts. Any positions, not in a cycle, will get empty if there is atleast 1 shift.
+<details>
+<summary>Implementation:</summary>
+  
+```java
+
+					importjava.io.*;
+					importjava.util.HashSet;
+					
+					publicclassTheBovineShuffle{
+					staticINPUT_TYPEUSACO=INPUT_TYPE.USACO;
+					staticINPUT_TYPELOCAL=INPUT_TYPE.LOCAL;
+					staticINPUT_TYPELOCAL_CMD=INPUT_TYPE.LOCAL_COMMANDLINE;
+					staticINPUT_TYPEinputType;
+					staticintnoOfInputs=0;
+					staticStringproblemName="shuffle";
+					staticFastReaderx=newFastReader();
+					staticPrintWriterpw=newPrintWriter(System.out);
+					
+					publicstaticvoidmain(String[]args)throwsIOException{
+					inputType=INPUT_TYPE.USACO;
+					//inputType=INPUT_TYPE.LOCAL_COMMANDLINE;
+					noOfInputs=1;
+					if(inputType==INPUT_TYPE.USACO){
+					x=newFastReader(problemName+".in");
+					pw=newPrintWriter(problemName+".out");
+					getAnswer();
+					}
+					elseif(inputType==INPUT_TYPE.LOCAL){
+					x=newFastReader("D:\\usaco.guide\\FunctionalGraph\\"+problemName+".in");
+					for(inti=0;i<noOfInputs;i++){
+					getAnswer();
+					}
+					}
+					elseif(inputType==INPUT_TYPE.LOCAL_COMMANDLINE){
+					getAnswer();
+					}
+					pw.close();
+					}
+					staticvoidgetAnswer(){
+					getAnswer3();
+					}
+					staticvoidgetAnswer1(){
+					intN=x.nextInt();
+					intarr[]=newint[N+1];
+					for(inti=1;i<=N;i++){
+					arr[i]=x.nextInt();
+					}
+					HashSet<Integer>visited=newHashSet<>();
+					classmethod{
+					inta,b;
+					intfloyd(intx){
+					a=arr[x];
+					b=arr[arr[x]];
+					while(a!=b){
+					a=arr[a];
+					b=arr[arr[b]];
+					}
+					a=x;
+					while(a!=b){
+					visited.add(a);
+					a=arr[a];
+					b=arr[b];
+					}
+					intfirst=a,length=0;
+					if(visited.contains(first))return0;
+					b=first;
+					do{
+					visited.add(b);
+					b=arr[b];
+					++length;
+					}while(first!=b);
+					returnlength;
+					}
+					}
+					intans=0;
+					methodm=newmethod();
+					for(inti=1;i<=N;i++){
+					if(!visited.contains(i)){
+					ans+=m.floyd(i);
+					}
+					}
+					pw.println(ans);
+					}
+					staticvoidgetAnswer2(){
+					intN=x.nextInt();
+					intarr[]=newint[N+1];
+					for(inti=1;i<=N;i++){
+					arr[i]=x.nextInt();
+					}
+					HashSet<Integer>visited=newHashSet<>();
+					classmethod{
+					inta,b;
+					intfloyd(intx){
+					a=arr[x];
+					b=arr[arr[x]];
+					while(a!=b){
+					a=arr[a];
+					b=arr[arr[b]];
+					}
+					a=x;
+					if(visited.contains(b))return0;
+					while(a!=b){
+					a=arr[a];
+					b=arr[b];
+					}
+					intfirst=a,length=0;
+					b=first;
+					do{
+					b=arr[b];
+					++length;
+					}while(first!=b);
+					a=x;
+					while(a!=first){
+					visited.add(a);
+					a=arr[a];
+					}
+					b=first;
+					do{
+					visited.add(b);
+					b=arr[b];
+					}while(b!=first);
+					returnlength;
+					}
+					}
+					intans=0;
+					methodm=newmethod();
+					for(inti=1;i<=N;i++){
+					if(!visited.contains(i)){
+					ans+=m.floyd(i);
+					}
+					}
+					pw.println(ans);
+					}
+					staticvoidgetAnswer3(){
+					intN=x.nextInt();
+					intarr[]=newint[N+1];
+					for(inti=1;i<=N;i++){
+					arr[i]=x.nextInt();
+					}
+					intkyc[]=newint[N+1];
+					HashSet<Integer>visited=newHashSet<>();
+					classmethod{
+					inta,b;
+					intfloyd(intx){
+					a=arr[x];
+					b=arr[arr[x]];
+					while(a!=b){
+					if(visited.contains(a))return0;
+					a=arr[a];
+					b=arr[arr[b]];
+					}
+					if(visited.contains(b))return0;
+					a=x;
+					while(a!=b){
+					a=arr[a];
+					b=arr[b];
+					}
+					intfirst=a,length=0;
+					b=first;
+					do{
+					visited.add(b);
+					b=arr[b];
+					++length;
+					}while(first!=b);
+					returnlength;
+					}
+					}
+					classmethod2{
+					intfloyd(intx){
+					inta=arr[x];
+					intb=arr[arr[x]];
+					while(a!=b){
+					visited.add(a);
+					a=arr[a];
+					b=arr[arr[b]];
+					}
+					a=x;
+					while(a!=b){
+					a=arr[a];
+					b=arr[b];
+					}
+					intfirst=a,length=0;
+					b=first;
+					do{
+					kyc[b]=2;
+					b=arr[b];
+					++length;
+					}while(first!=b);
+					returnlength;
+					}
+					}
+					intans=0;
+					methodm=newmethod();
+					for(inti=1;i<=N;i++){
+					if(!visited.contains(i)){
+					ans+=m.floyd(i);
+					}
+					}
+					/*
+					Justananotherwayofsolvingtheproblem.nobigdeal
+					
+					method2m2=newmethod2();
+					for(inti=1;i<=N;i++){
+					if(!visited.contains(i)){
+					m2.floyd(i);
+					}
+					}
+					for(inti:kyc){
+					if(i==2){
+					++ans;
+					}
+					}
+					*/
+					pw.println(ans);
+					}
+					enumINPUT_TYPE{
+					USACO,LOCAL,LOCAL_COMMANDLINE;
+					}
+					staticclassFastReader{
+					finalprivateintBUFFER_SIZE=1<<16;
+					privateDataInputStreamdin;
+					privatebyte[]buffer;
+					privateintbufferPointer,bytesRead;
+					
+					publicFastReader(){
+					din=newDataInputStream(System.in);
+					buffer=newbyte[BUFFER_SIZE];
+					bufferPointer=bytesRead=0;
+					}
+					
+					publicFastReader(Stringfile_name)throwsIOException{
+					din=newDataInputStream(newFileInputStream(file_name));
+					buffer=newbyte[BUFFER_SIZE];
+					bufferPointer=bytesRead=0;
+					}
+					
+					publicStringnextLine(){
+					try{
+					byte[]buf=newbyte[10000000];//linelength
+					intcnt=0,c;
+					while((c=read())!=-1){
+					if(c=='\n')
+					break;
+					buf[cnt++]=(byte)c;
+					}
+					returnnewString(buf,0,cnt);
+					}catch(Exceptione){
+					System.out.println(e.getMessage());
+					returnnull;
+					}
+					}
+					
+					publicintnextInt(){
+					intret=0;
+					try{
+					bytec=read();
+					while(c<='')
+					c=read();
+					booleanneg=(c=='-');
+					if(neg)c=read();
+					do{
+					ret=ret*10+c-'0';
+					}while((c=read())>='0'&&c<='9');
+					
+					if(neg)return-ret;
+					returnret;
+					}catch(Exceptione){
+					System.out.println(e.getMessage());
+					return-1;
+					}
+					}
+					
+					publiclongnextLong(){
+					
+					try{
+					longret=0;
+					bytec=read();
+					while(c<='')c=read();
+					booleanneg=(c=='-');
+					if(neg)
+					c=read();
+					do{
+					ret=ret*10+c-'0';
+					}
+					while((c=read())>='0'&&c<='9');
+					if(neg)
+					return-ret;
+					returnret;
+					}catch(Exceptione){
+					System.out.println(e.getMessage());
+					return-1;
+					}
+					}
+					
+					publicdoublenextDouble(){
+					
+					try{
+					doubleret=0,div=1;
+					bytec=read();
+					while(c<='')
+					c=read();
+					booleanneg=(c=='-');
+					if(neg)c=read();
+					
+					do{
+					ret=ret*10+c-'0';
+					}
+					while((c=read())>='0'&&c<='9');
+					if(c=='.'){
+					while((c=read())>='0'&&c<='9'){
+					ret+=(c-'0')/(div*=10);
+					}
+					}
+					
+					if(neg)return-ret;
+					returnret;
+					}catch(Exceptione){
+					System.out.println(e.getMessage());
+					return-1;
+					}
+					}
+					
+					privatevoidfillBuffer()throwsIOException{
+					bytesRead=din.read(buffer,bufferPointer=0,BUFFER_SIZE);
+					if(bytesRead==-1)
+					buffer[0]=-1;
+					}
+					
+					privatebyteread()throwsIOException{
+					try{
+					if(bufferPointer==bytesRead)
+					fillBuffer();
+					returnbuffer[bufferPointer++];
+					}catch(Exceptione){
+					System.out.println(e.getMessage());
+					return-1;
+					}
+					}
+					
+					publicvoidclose()throwsIOException{
+					if(din==null)
+					return;
+					din.close();
+					}
+					}
+					}
+					enumINPUT_TYPE{
+					USACO,LOCAL,LOCAL_COMMANDLINE;
+					}
+
+```
+  
+</details>
+</details>
+<details>
+  <summary>Minimim Edge Weights Equilibrium Queries in a Tree:</summary>
+				If you are familiar with binary jumping, then you can tell it right away, becase there are two nodes given, and you need to find the path between the two nodes, and to find the path, you ougth to find the lca of those two nodes. Thereby, lca, means, binary lifting.
+				If you see the constraints, you will notice, the edge weights are constrained at 26, for which you can take a constant array of that size. The use binary lifting to create a matrix, which contains the frequency of the edge weights in respective paths. Then, similar to how you find, the lca, find out the frequency of edge weights in those paths.
+				If you wanna optimize even further, then, instead of using array, use bitwise operator, and xor, it will be faster.
+
+```java
+				class Solution {
+				    static ArrayList<Integer> tree[];
+				    // static int edgeWeight[][][];
+				    static int edgeWeightLifting[][][];
+				    static HashMap<ArrayList<Integer>,int[]> edgewt;
+				    static int depth[]; 
+				    static Tree t;
+				    static int n;
+				    public int[] minOperationsQueries(int n1, int[][] edges, int[][] queries) {
+				        n=n1;        
+				        tree=new ArrayList[n+1];
+				        // edgeWeight=new int[n][n][27];
+				        edgewt=new HashMap<>();
+				        edgeWeightLifting=new int[n][14][27];
+				        for(int i=0;i<=n;i++)tree[i]=new ArrayList<Integer>();
+				        for(int i[]:edges){
+				            tree[i[0]].add(i[1]);
+				            tree[i[1]].add(i[0]);
+				            addEdgeWeight(i);
+				        }
+				        t=new Tree();
+				        // t.printBinaryLifting();
+				        // t.printEdgeLifting();
+				        int answer[]=new int[queries.length];
+				        int c=0;
+				        for(int q[]:queries){
+				            answer[c++]=getOutput(q);
+				        }
+				        return answer;
+				    }
+				    static void addEdgeWeight(int i[]){
+				        // ++edgeWeight[i[0]][i[1]][i[2]];
+				        // ++edgeWeight[i[1]][i[0]][i[2]];
+				        ArrayList<Integer> temp=new ArrayList<Integer>();
+				        temp.add(i[0]);
+				        temp.add(i[1]);
+				        if(!edgewt.containsKey(temp)){
+				            edgewt.put(temp,new int[27]);
+				        }
+				        ++edgewt.getOrDefault(temp,new int[27])[i[2]];
+				    }
+				    static int getOutput(int q[]){
+				        int a=q[0];
+				        int b=q[1];
+				        if(t.depth[a]<t.depth[b]){
+				            int temp=a;
+				            a=b;
+				            b=temp;
+				        }
+				        int dif=t.depth[a]-t.depth[b];
+				        int level=0;
+				        int hm[]=t.initialize();
+				        int hm_a[]=t.initialize();
+				        int hm_b[]=t.initialize();
+				        while(dif>0){
+				            if((dif&1)==1){
+				                t.add(hm_a,edgeWeightLifting[a][level]);
+				                a=t.binaryLifting[a][level];
+				            }
+				            ++level;
+				            dif=dif>>1;
+				        }
+				        if(a==b){
+				            t.add(hm,hm_a);
+				        }
+				        else{
+				            // System.out.println(a+" "+b+" "+Arrays.toString(hm_a));
+				            for(int i=t.HEIGHT-1;i>=0;i--){
+				                if(t.binaryLifting[a][i]!=t.binaryLifting[b][i]){
+				                // if(a!=b){
+				                    t.add(hm_a,edgeWeightLifting[a][i]);
+				                    t.add(hm_b,edgeWeightLifting[b][i]);
+				                    a=t.binaryLifting[a][i];
+				                    b=t.binaryLifting[b][i];
+				                }
+				            }
+				            t.add(hm_a,getEdgeWeight(a,t.binaryLifting[a][0]));
+				            t.add(hm_b,getEdgeWeight(b,t.binaryLifting[b][0]));
+				            t.add(hm,hm_a);
+				            t.add(hm,hm_b);
+				        }
+				        // System.out.println(q[0]+" "+q[1]+" "+Arrays.toString(hm));
+				        return getResult(hm);
+				    }
+				    static int[] getEdgeWeight(int a, int b){
+				        // return edgeWeight[a][b];
+				        ArrayList<Integer> temp1=new ArrayList<Integer>();
+				        ArrayList<Integer> temp2=new ArrayList<Integer>();
+				        temp1.add(a);temp1.add(b);
+				        temp2.add(b);temp2.add(a);
+				        if(edgewt.containsKey(temp1))return edgewt.get(temp1);
+				        else return edgewt.get(temp2);
+				    }
+				    static int getResult(int arr[]){
+				        int sum=0,max=0;
+				        for(int i:arr){
+				            max=Math.max(max,i);
+				            sum+=i;
+				        }
+				        return sum-max;
+				    }
+				    static class Tree extends Solution {
+				            static int HEIGHT=14;
+				            static int depth[];
+				            // static int n=10000;
+				            static int binaryLifting[][];
+				            Tree(){
+				                binaryLifting=new int[n+1][14];
+				                for(int i[]:binaryLifting)Arrays.fill(i,-1);
+				                depth=new int[n+1];
+				                dfs(0,-1);
+				            }
+				            static int LCA(int a, int b) {
+				                if(depth[a]>depth[b]){
+				                    int temp=a;
+				                    a=b;
+				                    b=temp;
+				                }
+				                // depth of a is less than depth of b
+				                b=jump(b,depth[b]-depth[a]);
+				                if(a==b){
+				                    return a;
+				                }
+				                for(int i=HEIGHT-1;i>=0;i--){
+				                    if(binaryLifting[a][i]!=binaryLifting[b][i]){
+				                        a=binaryLifting[a][i];
+				                        b=binaryLifting[b][i];
+				                    }
+				                }
+				                return binaryLifting[a][0];
+				            }
+				            static int jump(int a, int height){
+				                int level=0;
+				                while(height!=0){
+				                    if((height&1)==1){
+				                        a=binaryLifting[a][level];
+				                    }
+				                    level+=1;
+				                    height=height>>1;
+				                }
+				                return a;
+				            }
+				            static void printBinaryLifting(){
+				                System.out.println();
+				                for(int i=0;i<=n;i++){
+				                    System.out.print(i+" : ");
+				                    for(int j=0;j<HEIGHT;j++){
+				                        System.out.print(binaryLifting[i][j]+" ");
+				                    }
+				                    System.out.println();
+				                }
+				            }
+				            static void printEdgeLifting(){
+				                System.out.println();
+				                for(int i=0;i<n;i++){
+				                    System.out.print(i+" : ");
+				                    for(int j=0;j<4;j++){
+				                        System.out.print(Arrays.toString(edgeWeightLifting[i][j])+" ");
+				                    }
+				                    System.out.println();
+				                }
+				            }
+				            static int[] initialize(){
+				                int hm[]=new int[27];
+				                return hm;
+				            }
+				            // static void add(int hm[], int node){
+				            //     int n=edgeWeight[node]==-1?0:1;
+				            //     ++hm[n];
+				            // }
+				            static void add(int hm[], int child[]){
+				                for(int i=0;i<hm.length;i++){
+				                    hm[i]+=child[i];
+				                }
+				            }
+				            static void dfs(int node, int par){
+				                binaryLifting[node][0]=par;
+				                if(par!=-1){
+				                    depth[node]=depth[par]+1;
+				                    add(edgeWeightLifting[node][0],getEdgeWeight(node,par));
+				                }
+				                for(int level=1;level<HEIGHT;level++){
+				                    if(binaryLifting[node][level-1]==-1)break;
+				                    binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+				                    if(binaryLifting[node][level]==-1)break;
+				                    add(edgeWeightLifting[node][level],edgeWeightLifting[node][level-1]);
+				                    add(edgeWeightLifting[node][level],edgeWeightLifting[binaryLifting[node][level-1]][level-1]);
+				                }
+				                for(int childNode:tree[node]){
+				                    if(childNode==par)continue;
+				                    dfs(childNode, node);
+				                }
+				            }
+				        }
+				}
+
+```
+</details>
