@@ -3439,3 +3439,243 @@ It’s a problem, complex to understand, however, once you understand it, and ha
 
 ```
 </details>
+
+
+### Day 6: April 7, 2024
+
+**Today's Progress**: 
+1. Gave leetcode virtual contest, however, haven't upsolved yet. Will provide updates about it, on the following days
+2. Revised some prior problems, that I had solved. The problems are:
+3. [Badge](https://codeforces.com/contest/1020/problem/B)
+4. [Cooperative Games](https://codeforces.com/contest/1137/problem/D)
+5. [Watching Mooloo](https://usaco.org/index.php?page=viewproblem2&cpid=1301)
+
+**Thoughts**: 
+<details>
+	<summary>Badge</summary>
+Its an interesting problem, which requires to read the question multiple times, to get a complete picture of the small intrecacies. The problem is essentially, a directional graph, with nodes of a single outdegree, thereby resulting in multiplie connected components with cycles. In order to get a clearer overview, its best, to draw out the test cases, helps in better visualisation. Anyways, if you are familiar with floyd's algo, its easy to figure out, the brute force approach is, call floyd's algo or dfs or any other graph traversal, over each node, and find out, which "visited" node is being visited again. However to optimize it, you need floyd's algo, and mark the nodes, which has been visited, and fill answer nodes, while running the floyd algo. Nodes, which ain't in cycle, will have answer as the first node, from where the cycle starts, and the nodes in cycle will have answer equaling their own node value. While running the floyd's algo, if you find any node, that's already visited, then if you have drawn such a test case, its clear that, for its answer, the answer of that node, which has already been visited, is the answer to this node.
+
+```java
+
+							import java.io.*;
+							import java.util.*;
+							
+							public class Badge {
+								static int[] adj;
+								static int[] ans;
+								/*
+								 * For each node, we need a list to store its children; at nodes
+								 * combining the cycle with other part of the connected component, there
+								 * would be more than one outgoing arrow in the reversed adjacency list
+								 */
+								static List<List<Integer>> radj;
+							
+								public static void main(String[] args) throws IOException {
+									BufferedReader in =
+									    new BufferedReader(new InputStreamReader(System.in));
+							
+									int n = Integer.parseInt(in.readLine());
+									adj = new int[n];
+									ans = new int[n];
+									radj = new ArrayList<>();
+							
+									StringTokenizer st = new StringTokenizer(in.readLine());
+									for (int i = 0; i < n; i++) {
+										adj[i] = Integer.parseInt(st.nextToken()) - 1;
+										ans[i] = -1;
+										radj.add(new ArrayList<>());
+									}
+							
+									for (int i = 0; i < n; i++) { radj.get(adj[i]).add(i); }
+							
+									for (int i = 0; i < n; i++) {
+										// run Floyd's algorithm on every connected component
+										if (ans[i] == -1) { floyd(i); }
+									}
+							
+									for (int i = 0; i < n; i++) { System.out.print(ans[i] + 1 + " "); }
+								}
+							
+								private static void floyd(int x) {
+									int a = adj[x];
+									int b = adj[adj[x]];
+							
+									// find a cycle using Floyd's algorithm
+									while (a != b) {
+										a = adj[a];
+										b = adj[adj[b]];
+									}
+							
+									// for each node a in the cycle, the answer ans[a] will be a as well
+									do {
+										ans[a] = a;
+										a = adj[a];
+									} while (a != b);
+							
+									// for each node a that has outgoing arrow(s) pointing to the acyclic
+									// part we set their answers with fillRadj
+									do {
+										fillRadj(a);
+										a = adj[a];
+									} while (a != b);
+								}
+							
+								private static void fillRadj(int x) {
+									for (int child : radj.get(x)) {
+										/*
+										 * As all nodes in the cycle are processed in method floyd, the
+										 * recursive call will only start at the nodes which combine the
+										 * cycle with the acyclic part of the connected component, where one
+										 * of its outgoing arrows points to the node that is not processed
+										 * yet
+										 */
+										if (ans[child] == -1) {
+											ans[child] = ans[x];
+											fillRadj(child);
+										}
+									}
+								}
+							}
+
+
+```
+</details>
+<details>
+	<summary>Cooperative Games</summary>
+	It’s a very interesting and an important problem, which exponentially helped me, to understand the floyd's algorithm deeply. It initially, seems to be a big ass complex question, but trust me, its peanuts, if you "really" understand the floyd's algo. I would even say, this might be a litmus test, if you understand this algorithm or not. So, first of all, break the groups of friends into 3, let the two group of friends proceed one before the other, and second group getting one extra lead every time (something similar to fast pointer and slow pointer), until the two groups meet and form 1 group, in total there are two groups now. Now, run both the group and they will meet at the finish line (which is the first node, between the non-cycle and nodes in cycle). There is a really cool mathematical explanation, on why this happens, if you see this video, you will easily understand the video as well as the question, like, you can just visually see the solution. (Floyd's cycle detection algorithm (Tortoise and hare) - Inside code)
+
+ ```java
+importjava.io.BufferedReader;
+							importjava.io.IOException;
+							importjava.io.InputStreamReader;
+							importjava.util.StringTokenizer;
+							
+							publicclassCooperativeGame{
+							staticBufferedReaderx=newBufferedReader(newInputStreamReader(System.in));
+							publicstaticvoidmain(String[]args)throwsIOException{
+							getAnswer1();
+							//ignoreanswer2,wasjustexperimentingandshit
+							//getAnswer2();
+							}
+							staticvoidgetAnswer1()throwsIOException{
+							Stringa="012";
+							Stringb="345";
+							Stringc="6789";
+							Stringspace="";
+							Stringnext="next";
+							classmethod{
+							intmove(Stringx)throwsIOException{
+							System.out.println(next+space+x);
+							intgrp=Integer.parseInt(getInput().nextToken());
+							returngrp;
+							}
+							StringTokenizergetInput()throwsIOException{
+							StringTokenizerst=newStringTokenizer(x.readLine());
+							returnst;
+							}
+							}
+							methodm=newmethod();
+							intgroup=3;
+							while(group==3){
+							m.move(a+space+b);
+							group=m.move(b);
+							}
+							while(group==2){
+							group=m.move(a+space+b+space+c);
+							}
+							System.out.println("done");
+							}
+							staticvoidgetAnswer2()throwsIOException{
+							Stringa="012345";
+							Stringb="6789";
+							Stringspace="";
+							Stringnext="next";
+							classmethod{
+							intmove(Stringx)throwsIOException{
+							System.out.println(next+space+x);
+							intgrp=Integer.parseInt(getInput().nextToken());
+							returngrp;
+							}
+							StringTokenizergetInput()throwsIOException{
+							StringTokenizerst=newStringTokenizer(x.readLine());
+							returnst;
+							}
+							}
+							
+							methodm=newmethod();
+							intgroup=m.move(b);
+							while(group>1){
+							m.move(a+space+b);
+							group=m.move(b);
+							}
+							System.out.println("done");
+							}
+							}
+
+```
+
+</details>
+<details>
+	<summary>Watching Mooloo</summary>
+	A really simple puzzle type problem, where, if you observe, for every step, essentially, we have to find, if buying a single day subscription is cheaper than buying a durational subscription, for each of the days, defined. The implementation, was a little bit tricky for me. It’s a unique problem in the sense, understanding the problem and arriving to the solution and understanding the math behind it was simple, however, implementation was where, the maximum time went. Had to incorporate a lot of print statements, in order to debug the errors!
+
+```java
+
+							importjava.io.*;
+							importjava.util.*;
+							
+							classKattioextendsPrintWriter{
+							privateBufferedReaderr;
+							privateStringTokenizerst;
+							//standardinput
+							publicKattio(){this(System.in,System.out);}
+							publicKattio(InputStreami,OutputStreamo){
+							super(o);
+							r=newBufferedReader(newInputStreamReader(i));
+							}
+							//USACO-stylefileinput
+							publicKattio(StringproblemName)throwsIOException{
+							super(problemName+".out");
+							r=newBufferedReader(newFileReader(problemName+".in"));
+							}
+							//returnsnullifnomoreinput
+							publicStringnext(){
+							try{
+							while(st==null||!st.hasMoreTokens())
+							st=newStringTokenizer(r.readLine());
+							returnst.nextToken();
+							}catch(Exceptione){}
+							returnnull;
+							}
+							publicintnextInt(){returnInteger.parseInt(next());}
+							publicdoublenextDouble(){returnDouble.parseDouble(next());}
+							publiclongnextLong(){returnLong.parseLong(next());}
+							}
+							
+							publicclassWatchingMooloo{
+							publicstaticvoidmain(String[]args){
+							
+							Kattioio=newKattio();
+							intN=io.nextInt();
+							intK=io.nextInt();
+							ArrayList<Long>days=newArrayList<>();
+							longans=0,yesterday=0;
+							for(inti=0;i<N;i++){
+							longtoday=io.nextLong();
+							if(i==0){
+							ans+=K+1;
+							}
+							else{
+							longnoOfDays=today-yesterday;
+							ans+=Math.min(noOfDays,K+1);
+							}
+							yesterday=today;
+							}
+							io.print(ans);
+							io.close();
+							}
+							}
+
+
+```
+</details>
