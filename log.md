@@ -3679,3 +3679,2295 @@ importjava.io.BufferedReader;
 
 ```
 </details>
+
+### Day 7, 8 & 9: April 8, 9 & 10, 2024
+
+**Progress**:
+Something personal came up, which caused an erratic schedule, which resulted in, not being able to provide daily updates. However, I have been progressing daily, albait, the rate of progress did get a hit, but not by much. Revised a bunch of problems, that had been in backlog for a long long time as well as gave leetcode contest (which I am targeting to upsolve, by the end of this week.)
+
+**Thoughts**:
+Below, are the list of the problems, that I have revised (its a lot):
+
+<details>
+	<summary><a href="https://codeforces.com/contest/1556/problem/D">Take a guess</a></summary>
+Its a math trickery problem. Basically, we have to find the kth smallest no, in the series, however, the series is not given. The only thing, we can do is, ask the program for either providing the & of nos. at i and j, else get the "or" value of nos. i and j. We will, however, be given the value of k. So if we somehow find (a+b), (b+c) and (a+c), we will be able to find a. However, since we will only get & and "or", what should we do ? Turns out, you if you are familiar with the below equations, the problems, takes seconds to solve. The math expressions are :<br>
+i) a+b = 2*(a&b)+(a xor  b) <br>
+ii) a xor b = not(a and b) and (a or b) <br>
+Well, the proof of the first equation, was really interesting!
+<br>
+Implementation:
+
+ ```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.StringTokenizer;
+
+public class TakeAGuess {
+    static BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args)throws IOException {
+        StringTokenizer st=new StringTokenizer(x.readLine());
+        int n=Integer.parseInt(st.nextToken());
+        int k=Integer.parseInt(st.nextToken());
+        ArrayList<Integer> arr=new ArrayList<>();
+        fillInFirstThree(arr);
+        for(int i=4;i<=n;i++){
+            arr.add(getSum(i-1,i)-arr.get(arr.size()-1));
+        }
+        Collections.sort(arr);
+        System.out.println("finish "+arr.get(k-1));
+    }
+    static void fillInFirstThree(ArrayList<Integer> arr)throws IOException{
+        int aPLUSb=getSum(1,2);
+        int bPLUSc=getSum(2,3);
+        int aPLUSc=getSum(1,3);
+        int a=((aPLUSb+aPLUSc)-(bPLUSc))/2;
+        int b=aPLUSb-a;
+        int c=bPLUSc-b;
+        arr.add(a);
+        arr.add(b);
+        arr.add(c);
+    }
+    static int getSum(int a, int b)throws IOException{
+        int aANDb=askForAnd(a,b);
+        int aORb=askForOr(a,b);
+        int aXORb=aORb&(~aANDb);
+        return (2*aANDb)+aXORb;
+    }
+    static int askForAnd(int a, int b)throws IOException{
+        String space=" ";
+        System.out.println("and"+space+a+space+b);
+        return Integer.parseInt(x.readLine());
+    }
+    static int askForOr(int a, int b)throws IOException{
+        String space=" ";
+        System.out.println("or"+space+a+space+b);
+        return Integer.parseInt(x.readLine());
+    }
+}
+ 
+```
+</details>
+<details>
+	<summary><a href="https://leetcode.com/problems/maximum-number-of-groups-with-increasing-length/description/">Max. No. of Groups with increasing length</a></summary>
+Leetcode problem. It’s a tricky one, if you dry run and draw stuff, you will guess the pattern. But its one of those unique questions, where you understand the problem, as well as the solution, meaning, figuring out, what's the pattern, however, it still, would be difficult to implement. Its was for me. I was stuck, with the thought, that for creating groups, the frequency should be somehow "atleast" and played a lot around it, however, then I remembered, we can use sum, in order to compensate for the usageLimits larger than the atleast usageLimit. Thereby, arriving towards the solution. I experimented a lot.
+<br>Implementation:
+
+```java
+class Solution {
+    public int maxIncreasingGroups(List<Integer> usageLimits) {
+        // return answer1(usageLimits);
+        // return answer2(usageLimits);
+        // return answer3(usageLimits);
+        // return answer4(usageLimits);
+        return answer5(usageLimits);
+    }
+    // int answer5(List<Integer> usageLimits){
+    //     Collections.sort(usageLimits);
+    //     List<Long> usageLimitsSum=new ArrayList<Long>();
+    //     usageLimitsSum.add(usageLimits.get(0));
+    //     for(int i=1;i<usageLimits.size();i++){
+    //         usageLimitsSum.add(usageLimitsSum.get(i-1)+usageLimits.get(i));
+    //     }
+    //     int group=0;
+    //     for(int i=1;i<=usageLimits.size();i++){
+    //         if(!binarySearch(i, usageLimitsSum))
+    //             ++group;
+    //     }
+    //     return group;
+    // }
+    // boolean binarySearch(int key, List<Long> arr){
+    //     // long key=
+    //     if(arr.get(arr.size()-1)<m)return false;
+    //     int l=0, r=arr.size()-1, m=0;
+    //     while(l<r){
+    //         m=(l+r)/2;
+    //         if(arr.get(l)<key){
+    //             l=m;
+    //         }
+    //         else if(arr.get(r)>key){
+    //             r=m;
+    //         }
+    //         else{
+    //             return true;
+    //         }
+    //     }
+    // }
+    int answer4(List<Integer> usageLimits){
+        Collections.sort(usageLimits);
+        long m=1; long sum=0;
+        for(int i:usageLimits){
+            sum+=i;
+            // System.out.println(sum+" "+m+" "+m*(m+1)/2);
+            if(m*(m+1)/2 <= sum){
+                ++m;
+            }
+            // else{
+            //     return m-1;
+            // }
+        }
+        return (int) m-1;
+    }
+    int answer3(List<Integer> usageLimits){
+        Collections.sort(usageLimits);
+        int answer=0, total=0,m=1;
+        for(int i:usageLimits){
+            total+=i;
+            if(total>=(m*(m+1))/2){
+                ++answer;
+            }
+            ++m;
+        }
+        return answer;
+    }
+    int answer2(List<Integer> usageLimits){
+        int arr[]=new int[usageLimits.size()];
+        for(int i=0;i<arr.length;i++){
+            arr[i]=usageLimits.get(i);
+        }
+        Arrays.sort(arr);
+        int answer=0;
+        for(int j=arr.length-1;j>=0;j--){
+            for(int i=arr.length-1;i>=j;i--){
+                --arr[i];
+                if(arr[i]<0)return answer;
+            }
+            ++answer;
+        }
+        return answer;
+    }
+    int answer1(List<Integer> usageLimits){
+        PriorityQueue<Integer> pq=new PriorityQueue<Integer>((a,b)->b-a);
+        for(int i:usageLimits){
+            pq.add(i);
+        }
+        int answer=0;
+        for(int i=1;i<=usageLimits.size();i++){
+            List<Integer> arr=new ArrayList<>();
+            for(int j=0;j<i;j++){
+                arr.add(pq.poll());
+            }
+            for(int j:arr){
+                if(j==0)return answer;
+                pq.add(j-1);
+            }
+            ++answer;
+        }
+        return answer;
+    }
+}
+
+```
+</details>
+<details>
+	<summary><a href="https://codeforces.com/contest/1338/problem/A">Powered Addition</a></summary>
+a tricky question, indeed! But, with hit and trial, it can be figured out, or atleast get some ideas. Like, firstly, there is no need of increasing the value of any array element, more than the max value. Second, the only difference, that's important is, the max difference between the ith and jth number where i&lt;j. Finding the power of 2, of that difference, solves the problem. Finding the power of 2, of that difference, solves the problem.
+<br>Implementation:
+
+```java
+
+public class PoweredAddition {
+    static FastReader x=new FastReader();
+    static int testCases;
+
+    public static void main(String[] args)throws IOException {
+//        x=new FastReader("D:\\usaco.guide\\testFile.txt");
+        testCases=x.nextInt();
+        getAnswer1();
+    }
+    static void getAnswer1(){
+        int n = 0;
+        long arr[];
+        class method{
+            void perProcess(long arr[], int n) {
+                long min=0;
+                for(int i=0;i<n;i++){
+                    min=Math.min(arr[i],min);
+                }
+                min=min*-1;
+                for(int i=0;i<n;i++){
+                    arr[i]+=min;
+                }
+            }
+            int getPowerOf(long c){
+                int pow=0;
+                for(int i=1;i<33;i++){
+                    if((c&1)==1){
+                        pow=i;
+                    }
+                    c=c>>1;
+                }
+                return pow;
+            }
+        }
+        method m=new method();
+        for(int i=0;i<testCases;i++){
+            n= x.nextInt();
+            arr= new long[n];
+            for(int j=0;j<n;j++){
+                arr[j]=x.nextInt();
+            }
+            m.perProcess(arr, n);
+//            System.out.println(Arrays.toString(arr));
+            long diff=0;
+            for(int j=1;j<n;j++){
+                diff=Math.max(diff, arr[j-1]-arr[j]);
+                arr[j]=Math.max(arr[j], arr[j-1]);
+            }
+            System.out.println(m.getPowerOf(diff));
+        }
+    }
+    static class FastReader {
+        final private int BUFFER_SIZE = 1 << 16;
+        private DataInputStream din;
+        private byte[] buffer;
+        private int bufferPointer, bytesRead;
+
+        public FastReader() {
+            din = new DataInputStream(System.in);
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public FastReader(String file_name) throws IOException {
+            din = new DataInputStream(new FileInputStream(file_name));
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public String nextLine() {
+            try{
+                byte[] buf = new byte[10000000]; // line length
+                int cnt = 0, c;
+                while ((c = read()) != -1) {
+                    if (c == '\n')
+                        break;
+                    buf[cnt++] = (byte) c;
+                }
+                return new String(buf, 0, cnt);
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+                return null;
+            }
+        }
+
+        public int nextInt()  {
+            int ret = 0;
+            try {
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+                do{
+                    ret = ret * 10 + c - '0';
+                }  while ((c = read()) >= '0' && c <= '9');
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public long nextLong()   {
+
+            try {
+                long ret = 0;
+                byte c = read();
+                while (c <= ' ') c = read();
+                boolean neg = (c == '-');
+                if (neg)
+                    c = read();
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (neg)
+                    return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public double nextDouble()  {
+
+            try {
+                double ret = 0, div = 1;
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (c == '.') {
+                    while ((c = read()) >= '0' && c <= '9') {
+                        ret += (c - '0') / (div *= 10);
+                    }
+                }
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        private void fillBuffer() throws IOException{
+            bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
+            if (bytesRead == -1)
+                buffer[0] = -1;
+        }
+
+        private byte read() throws IOException  {
+            try{
+                if (bufferPointer == bytesRead)
+                    fillBuffer();
+                return buffer[bufferPointer++];
+            }catch(Exception e){
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public void close() throws IOException {
+            if (din == null)
+                return;
+            din.close();
+        }
+    }
+}
+```
+</details>
+
+<details>
+	<summary><a href="https://atcoder.jp/contests/abc295/tasks/abc295_d">Three Days</a></summary>
+The question is very easy to understand, however, the solution, either requires considerable practice, math brain, as there is a special trick involved to observe. This really fried my brain. So, for each digit of that no., we xor its place, and store it, if there is a place, where the string is palindrome, then, its place automatically incremented. Yeah, it’s a bit confusing, its best to view the editorial. I had experimented with various approaches, before arriving to the solution, all listed below.
+<br>Implementation:
+
+ ```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+
+public class Main {
+    static BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+    static String s;
+    static HashSet<Pair> hs=new HashSet<Pair>();
+    public static void main(String[] args)throws IOException {
+        s=x.readLine();
+//        getAnswer1();
+//        getAnswer2();
+//        getAnswer3();
+        getAnswer4();
+//        System.out.println("Unmatched: "+hs);
+    }
+    static void getAnswer4(){
+        char sArr[]=s.toCharArray();
+        HashMap<ArrayList<Integer>, Integer> hm=new HashMap<ArrayList<Integer>, Integer>();
+        ArrayList<Integer> arr=new ArrayList<>();
+        for(int i=0;i<10;i++){
+            arr.add(0);
+        }
+        hm.put(arr,1);
+        long res=0;
+        for(char c:sArr){
+            arr.set(c-'0', (arr.get(c-'0')+1)%2);
+            long temp=hm.getOrDefault(arr,0);
+            res+=temp;
+            hm.put(arr, hm.getOrDefault(arr, 0)+1);
+        }
+        System.out.println(res);
+    }
+    static void getAnswer3()throws IOException{
+        char sArr[]=s.toCharArray();
+        long arr[]=new long[1<<10];
+        int temp=0;
+        ++arr[0];
+        for(char c:sArr){
+            temp=temp^(1<<(c-'0'));
+//            System.out.println(temp);
+            ++arr[temp];
+        }
+        long res=0;
+        for(int i=0;i<1<<10;i++){
+            res=res+((arr[i]*(arr[i]-1))/2);
+        }
+        System.out.println(res);
+    }
+    static void getAnswer1()throws IOException{
+        char sArr[]=s.toCharArray();
+        int ans=0;
+        for(int i=0;i<s.length();i++){
+            int temp=0;
+            for(int j=i;j<s.length();j++){
+                int t=sArr[j]-'0';
+                temp^=(1<<t);
+                if(temp==0){
+                    hs.add(new Pair(i,j));
+                    ++ans;
+                }
+            }
+        }
+        System.out.println(ans);
+    }
+    static void getAnswer2()throws IOException{
+        char sArr[]=s.toCharArray();
+        int ans=0;
+        for(int i=0;i<s.length();i++){
+            int temp=0;
+            for(int j=i;j<s.length();j++){
+//                int t=sArr[j]-'0';
+                temp=temp^sArr[j];
+//                System.out.println(i+", "+j+": "+temp);
+                if(temp==0){
+                    findOut(i,j);
+//                    System.out.println(i+" "+j);
+                    ++ans;
+                }
+            }
+        }
+        System.out.println(ans);
+    }
+    static void findOut(int a, int b){
+        Pair p=new Pair(a,b);
+        if(hs.contains(p)){
+            hs.remove(p);
+        }
+        else{
+            System.out.print("Extra: "+a+","+b+" || ");
+            int xorNo=0, xorChar=0;
+            for(int i=a;i<=b;i++){
+                System.out.print(s.charAt(i));
+                xorNo^=(s.charAt(i)-'0');
+                xorChar^=s.charAt(i);
+            }
+            System.out.println("  || "+xorNo+" "+xorChar);
+        }
+    }
+}
+class Pair{
+    int a, b;
+    Pair(int x, int y){
+        a=x;
+        b=y;
+    }
+    Pair(char x, char y){
+        a=x-'0';
+        b=y-'0';
+    }
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + a;
+        result = prime * result + b;
+        return result;
+    }
+    @Override
+    public String toString(){
+        return "("+a+","+b+")";
+    }
+    @Override
+    public boolean equals(Object obj) {
+        Pair p=(Pair)obj;
+        if (a != p.a)
+            return false;
+        if (b != p.b)
+            return false;
+        return true;
+    }
+}
+```
+</details>
+<details>
+	<summary><a href="https://codeforces.com/contest/1017/problem/D">The Wu</a></summary>
+	The problem is, a bit tricky to understand, however, once you understand the question, its pretty simple to solve. See, since the constraint of k is 100, for any input, you can pretty much, presolve answers and store it in array and then, display those stuff, wrt query, and query size suddenly doesn't have any effect. Else, for each query, there will be computation time wasted. 
+<br>Below are the implementations, I experimented with:
+
+```java
+public class TheWu {
+    static BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+    static PrintWriter pw=new PrintWriter(System.out);
+    public static void main(String[] args)throws IOException {
+        String file="D:\\usaco.guide\\testFile.txt";
+//        x=new BufferedReader(new FileReader(file));
+
+        StringTokenizer st=new StringTokenizer(x.readLine());
+        int n=Integer.parseInt(st.nextToken());
+        int m=Integer.parseInt(st.nextToken());
+        int q=Integer.parseInt(st.nextToken());
+        int w[]=new int[n];
+        st=new StringTokenizer(x.readLine());
+        for(int i=0;i<n;i++){
+            w[i]=Integer.parseInt(st.nextToken());
+        }
+//        int multiSet_S[]=new int[m];
+        HashMap<Integer, Integer> hm=new HashMap<>();
+        HashSet<Integer> multiSet_S=new HashSet<>();
+        for(int i=0;i<m;i++){
+            int temp=stringToInteger(x.readLine());
+            multiSet_S.add(temp);
+            hm.put(temp, hm.getOrDefault(temp,0)+1);
+        }
+        int combinations=(int)Math.pow(2,n);
+        int k_wu[][]=new int[101][combinations+1];
+//        HashMap<Integer, ArrayList<Integer>> hm=new HashMap<>();
+        for(int c=0;c<combinations;c++){
+//            if(hm.containsKey(c))continue;
+//            hm.put(c, new ArrayList<>());
+            for(int s:multiSet_S){
+                int wu=wuOf(c,s,w);
+//                System.out.println(wu);
+                if(wu<=100){
+                    k_wu[wu][c]+=hm.get(s);
+                }
+//                hm.get(c).add(wu);
+            }
+//            Collections.sort(hm.get(c));
+        }
+
+        for(int j=0; j<combinations; j++){
+            for(int i=1;i<=100;i++){
+                k_wu[i][j]+=k_wu[i-1][j];
+            }
+        }
+
+//        for(int i=0;i<=100;i+=10){
+//            System.out.println(Arrays.toString(k_wu[i]));
+//        }
+        ArrayList<Integer> answers=new ArrayList<>();
+        for(int i=0;i<q;i++){
+            st=new StringTokenizer(x.readLine());
+            int t=stringToInteger(st.nextToken());
+            int k=Integer.parseInt(st.nextToken());
+//            int tempAns=binarySearch(hm.get(t),k);
+            answers.add(k_wu[k][t]);
+        }
+        for(int i:answers){
+            pw.println(i);
+        }
+        pw.close();
+    }
+    static int binarySearch(ArrayList<Integer> arr, int k){
+        int l=0, r=arr.size()-1;
+        while(l<=r){
+            int m=(l+r)/2;
+            if(arr.get(m)>k){
+                r=m-1;
+            }
+            else if(arr.get(m)<k){
+                l=m+1;
+            }
+            else{
+                l=m+1;
+            }
+        }
+        return l;
+    }
+    static int stringToInteger(String s){
+        int ans=0, prd=1;
+        for(int i=s.length()-1;i>=0;i--){
+            if(s.charAt(i)=='1'){
+                ans+=prd;
+            }
+            prd*=2;
+        }
+        return ans;
+    }
+    static int wuOf(String s, String t, int w[]){
+        int ans=0;
+        for(int i=0;i<s.length();i++){
+            if(s.charAt(i)==t.charAt(i)){
+                ans+=w[i];
+            }
+        }
+        return ans;
+    }
+    static int wuOf(int s, int t, int w[]){
+        int ans=0;
+        for(int i=w.length-1;i>=0;i--){
+            if((s&1)==(t&1)){
+                ans+=w[i];
+            }
+            s=s>>1;
+            t=t>>1;
+        }
+        return ans;
+    }
+} 
+```
+</details>
+<details>
+	<summary><a href="https://codeforces.com/contest/1851/problem/F">Lisa and the Martians</a></summary>
+This question too, is, kinda simple to understand, however, to solve it, need to be familiar with these kinds of probs. If you ever feel uncontrobly and narcestically good about yourself, I strongly recommend, solving algorithmic problems, it will keep you in place…. Lol! Well, so the train of thought here is, pay attention to the equation, there is a big ass "&" on the equation, so, we can kinda assume, that, to maximize the solution, we need max. no. of 1's. So we first sort the array, and find the lowest xor value, between two nos. This is because, if you recall the xor truth table, then, its 0 for values. Once we get this value, then we find the k, to max out the value, by either multiplying by 2 until k or right shifting until k. Below implementation, contains, almost all the trial errors, I have made :
+
+  ```java
+public class LisaAndMartians {
+    static BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+    static PrintWriter pw=new PrintWriter(System.out);
+    static int arr[];
+    static int n;
+    static int k;
+    public static void main(String[] args) throws IOException {
+        int testCases=Integer.parseInt(x.readLine());
+        for(int i=0;i<testCases;i++){
+            StringTokenizer st=new StringTokenizer(x.readLine());
+            n=Integer.parseInt(st.nextToken());
+            k=Integer.parseInt(st.nextToken());
+            st=new StringTokenizer(x.readLine());
+            arr=new int[n];
+            for(int j=0;j<n;j++){
+                arr[j]=Integer.parseInt(st.nextToken());
+            }
+//            getAnswer1();
+//            getAnswer3();
+//            getAnswer2();
+//            getAnswer5();
+//            getAnswer4();
+//            getAnswer6();
+            getAnswer7();
+        }
+        pw.close();
+    }
+    static void getAnswer7(){
+        int ar[][]=new int[arr.length][2];
+        for(int i=0;i<arr.length;i++){
+            ar[i][0]=arr[i];
+            ar[i][1]=i;
+        }
+        Arrays.sort(ar,(int a[], int b[])->a[0]-b[0]);
+        int lowest=Integer.MAX_VALUE, lowestI=0;
+        for(int i=1;i<arr.length;i++){
+            int temp=ar[i-1][0]^ar[i][0];
+            if(temp<lowest){
+                lowest=temp;
+                lowestI=i;
+            }
+        }
+        System.out.println((ar[lowestI-1][1]+1)+" "+(ar[lowestI][1]+1)+" "+(((1<<k)-1)^ar[lowestI][0]));
+    }
+    static void getAnswer6(){
+        int and=0, ai=0, aj=0;
+        for(int i=0;i<n;i++){
+            for(int j=i+1;j<n;j++){
+                int temp=arr[i]&arr[j];
+                if(and<=temp){
+                    and=temp;
+                    ai=i;
+                    aj=j;
+                }
+            }
+        }
+        and=0;int x=0;
+        for(int i=0;i<1<<k;i++){
+            int temp=((arr[ai]^i)&(arr[aj]^i));
+            if(and<temp){
+                and=temp;
+                x=i;
+            }
+        }
+        System.out.println(ai+" "+aj+" "+x);
+//        System.out.print(ai+" "+aj+" "+x+" ---- "+((arr[ai]^x)&(arr[aj]^x))+" ");
+        getAnswer2();
+    }
+    static void getAnswer4(){
+        HashMap<Integer, Queue<Integer>> hm=new HashMap<>();
+        for(int i=0;i<n;i++){
+            if(!hm.containsKey(arr[i])){
+                hm.put(arr[i], new LinkedList<>());
+            }
+            hm.get(arr[i]).add(i);
+        }
+        Arrays.sort(arr);
+//        System.out.println(hm);
+        int ai=0, aj=0, x=0;
+        int ans=0;
+        for(int i=1;i<n;i++){
+            for(int j=0;j<1<<k;j++){
+                int temp=(arr[i-1]^j)&(arr[i]^j);
+                if(ans<=temp){
+                    ai=hm.get(arr[i-1]).poll();
+                    aj=hm.get(arr[i]).poll();
+                    x=j;
+                    hm.get(arr[i-1]).add(ai);
+                    hm.get(arr[i]).add(aj);
+                    ans=temp;
+                }
+            }
+        }
+//        System.out.println((ai+1)+" "+(aj+1)+" "+x);
+        pw.println((ai+1)+" "+(aj+1)+" "+x);
+    }
+    static void getAnswer1(){
+        int highestAnd=0, ai=0, aj=0;
+        for(int i=0;i<n;i++){
+            for(int j=i+1;j<n;j++){
+                if(highestAnd<(arr[i]&arr[j])){
+                    highestAnd=arr[i]&arr[j];
+                    ai=i;
+                    aj=j;
+                }
+            }
+        }
+        int ans=0, x=0;
+        for(int i=0;i<1<<k;i++){
+            if(ans<(highestAnd^(arr[ai]&i)^(arr[aj]&i))){
+                ans=highestAnd^(arr[ai]&i)^(arr[aj]&i);
+                x=i;
+            }
+        }
+        System.out.println((ai+1)+" "+(aj+1)+" "+x+" -- "+ans);
+    }
+    static void getAnswer2(){
+        int highest=0, ai=0, aj=0, x=0;
+        for(int i=0;i<n;i++){
+            for(int j=i+1;j<n;j++){
+                for(int xc=0;xc<1<<k;xc++){
+                    int temp=((arr[i]^xc)&(arr[j]^xc));
+                    if(highest<=temp){
+                        ai=i;
+                        aj=j;
+                        x=xc;
+                        highest=temp;
+                    }
+                }
+            }
+        }
+//        System.out.println(highest+","+x);
+//        System.out.println((ai+1)+" "+(aj+1)+" "+x);
+        System.out.println((ai+1)+" "+(aj+1)+" "+x);
+//        System.out.println(ai+" "+aj+" "+x+" -- "+highest);
+    }
+    static void getAnswer5(){
+        int highest=0, ai=0, aj=0, x=0;
+        for(int i=0;i<n;i++){
+            for(int j=i+1;j<n;j++){
+                int xc=1<<k;
+                for(int l=0;l<100;l++){
+                    if(xc<0)break;
+                    --xc;
+                    int temp=((arr[i]^xc)&(arr[j]^xc));
+                    if(highest<=temp){
+                        ai=i;
+                        aj=j;
+                        x=xc;
+                        highest=temp;
+                    }
+                }
+            }
+        }
+        System.out.println((ai+1)+" "+(aj+1)+" "+x);
+//        System.out.print(k+" | "+(1<<k)+" || "+(ai+1)+" "+(aj+1)+" "+x+" -- "+highest+" ");
+//        getAnswer2();
+//        System.out.println(ai+" "+aj+" "+x+" -- "+highest);
+    }
+    static void getAnswer3(){
+        int highestA=0, x=0, ai=0;
+        for(int xc=0;xc<1<<k;xc++){
+            for(int i=0;i<n;i++){
+                int temp=arr[i]^xc;
+                if(highestA<temp){
+                    highestA=temp;
+                    x=xc;
+                    ai=i;
+                }
+            }
+        }
+        int bi=0, highestB=0;
+        for(int i=0;i<n;i++){
+            if(i==ai)continue;
+            int temp=(highestA)&(arr[i]^x);
+            if(highestB<temp){
+                highestB=temp;
+                bi=i;
+            }
+        }
+        System.out.println(ai+" "+bi+" "+x+" -- "+(highestA&highestB));
+    }
+}
+ ```
+</details>
+<details>
+	<summary><a href="https://leetcode.com/problems/maximize-the-profit-as-the-salesman/description/">Maximize the Profit as the Salesman</a></summary>
+The question is simple to understand and if familiar with recursion and dp, then its an easy solve. Basically, sort according the the start index, and for every node, recursively find, the max. sale price value and find them max value. However, what if there are multiple nodes in the start index ? You can either loop and traverse the equal start index coordinates, or use binary search to further optimize it by finding the end point of that start index and where the next start index occures. First, you can apply a recursive equation to solve the problem, it will give tle, however, no worries, memoise the solution and you are good to go. 
+<br>Below are my implementation experiements.
+
+ ```java
+class Solution {
+    public int maximizeTheProfit(int n, List<List<Integer>> offers) {
+        // return answer2(n, offers);
+        /*memisation*/
+        // return answer3(n, offers);
+        /*simple bruteForce recursion*/
+        // return answer4(n, offers);
+        /*Optimised*/
+        // return answer5(n, offers);
+        /*optimised binary search*/
+        return answer6(n, offers);
+    }
+    int answer6(int n, List<List<Integer>> offers){
+        Collections.sort(offers,(a,b)->a.get(0)-b.get(0));
+        // System.out.println(offers);
+        return function4(offers.get(0).get(0), offers);
+    }
+    int function4(int currentIndex, List<List<Integer>> offers){
+        if(currentIndex>=offers.size()){
+            return 0;
+        }
+        int max=0, curr=currentIndex;
+        int nextIndex=getNextIndex(currentIndex, offers);
+        boolean flag=true;
+        while(flag){
+            max=Math.max(max, offers.get(curr).get(2)+function4(nextIndex, offers));
+            ++curr;
+            if(curr>=offers.size()||offers.get(currentIndex).get(0)!=offers.get(curr).get(0)){
+                flag=false;
+            }
+        }
+        return max;
+    }
+    int getNextIndex(int currentIndex, List<List<Integer>> offers){
+        int l=currentIndex, r=offers.size();
+        while(l<r){
+            int m=(l+r)/2;
+            if(offers.get(m).get(0)>offers.get(currentIndex).get(1)){
+                ++l;
+            }
+            else{
+                --r;
+            }
+        }
+        return r;
+    }
+    int dp1[];
+    int answer5(int n, List<List<Integer>> offers){
+        // Collections.sort(offers,(a,b)->a.get(0)-b.get(0));
+        // System.out.println(offers);
+        HashMap<Integer, List<List<Integer>>> hm=new HashMap<Integer, List<List<Integer>>>();
+        for(int i=0;i<n;i++){
+            hm.put(i, new ArrayList<List<Integer>>());
+        }
+        dp1=new int[n];
+        int min=1000000;
+        for(List<Integer> ls:offers){
+            min=Math.min(min, ls.get(0));
+            hm.get(ls.get(0)).add(ls);
+        }
+        // System.out.println(hm);
+        return function3(min, hm);
+    }
+    int function3(int currentIndex, HashMap<Integer, List<List<Integer>>> hm){
+        if(currentIndex>=hm.size()){
+            return 0;
+        }
+        if(dp1[currentIndex]>0)return dp1[currentIndex];
+        int max=0;
+        for(List<Integer> ls:hm.get(currentIndex)){
+            max=Math.max(max, ls.get(2)+function3(ls.get(1)+1, hm));
+        }
+        max=Math.max(max, function3(currentIndex+1, hm));
+        dp1[currentIndex]=max;
+        return max;
+    }
+    int answer2(int n, List<List<Integer>> offers){
+        Collections.sort(offers,(a,b)->a.get(0)-b.get(0));
+        // System.out.println(offers);
+        return function2(0, offers, -1);
+    }
+    int answer4(int n, List<List<Integer>> offers){
+        Collections.sort(offers,(a,b)->a.get(0)-b.get(0));
+        // System.out.println(offers);
+        return function1(0, offers, -1);
+    }
+    int dp[][];
+    public int answer3(int n, List<List<Integer>> offers){
+        Collections.sort(offers,(a,b)->a.get(0)-b.get(0));
+        // System.out.println(offers);
+        dp=new int[offers.size()][offers.size()+1];
+        return function(0, offers, -1);
+    }
+    int function(int currentIndex, List<List<Integer>> offers, int prevIndex){
+        if(currentIndex>=offers.size()){
+            return 0;
+        }
+        // System.out.println(currentIndex+" "+prevIndex);
+        if(dp[currentIndex][prevIndex+1]!=0)return dp[currentIndex][prevIndex+1];
+        if(overlap(offers,currentIndex, prevIndex)){
+            dp[currentIndex][prevIndex+1]= function(currentIndex+1, offers, prevIndex);
+            return dp[currentIndex][prevIndex+1];
+        }
+        else{
+        dp[currentIndex][prevIndex+1]= Math.max(offers.get(currentIndex).get(2)+function(currentIndex+1, offers, currentIndex),function(currentIndex+1, offers, prevIndex));
+        return dp[currentIndex][prevIndex+1];
+        }
+    }
+    int function1(int currentIndex, List<List<Integer>> offers, int prevIndex){
+        if(currentIndex>=offers.size()){
+            return 0;
+        }
+        // System.out.println(currentIndex+" "+prevIndex);
+        if(overlap(offers,currentIndex, prevIndex)){
+            return function1(currentIndex+1, offers, prevIndex);
+        }
+        else{
+            return Math.max(offers.get(currentIndex).get(2)+function1(currentIndex+1, offers, currentIndex),function1(currentIndex+1, offers, prevIndex));
+        }
+    }
+    int function2(int currentIndex, List<List<Integer>> offers, int prevIndex){
+        if(currentIndex>=offers.size()){
+            return 0;
+        }
+        // System.out.println(currentIndex+" "+prevIndex);
+        if(overlap(offers,currentIndex, prevIndex)){
+            // return function2(currentIndex+1, offers, prevIndex);
+            return Math.max(function2(currentIndex+1, offers, currentIndex),function2(currentIndex+1, offers, prevIndex));
+        }
+        else{
+            return offers.get(currentIndex).get(2)+function2(currentIndex+1, offers, currentIndex);
+        }
+    }
+    boolean overlap(List<List<Integer>> offers, int currentIndex, int prevIndex){
+        if(prevIndex==-1)return false;
+        int bStart=offers.get(currentIndex).get(0);
+        int bEnd=offers.get(currentIndex).get(1);
+        int aStart=offers.get(prevIndex).get(0);
+        int aEnd=offers.get(prevIndex).get(1);
+        // System.out.println("==>"+bStart+" "+aEnd);
+        if(bStart<=aEnd)return true;
+        return false;
+    }
+}
+						
+```
+</details>
+<details>
+	<summary><a href="https://leetcode.com/problems/find-the-minimum-possible-sum-of-a-beautiful-array/description/">Find the Minimum Possible Sum of a Beautiful Array</a></summary>
+A simple problem, just some observation, simple to understand and simple to solve really. Just start coding whatever you think, either you will end up solving it, or you will be very very close!
+
+ ```java
+class Solution {
+    public long minimumPossibleSum(int n, int target) {
+        int k=0;
+        HashSet<Integer> hs=new HashSet<Integer>();
+        long sum=0;
+        for(int i=1; i<=n;){
+            ++k;
+            if(hs.contains(target-k))continue;
+            ++i;
+            hs.add(k);
+            sum+=k;
+        }
+        return sum;
+    }
+}
+```
+</details>
+<details>
+	<summary><a href="https://leetcode.com/problems/determine-the-minimum-sum-of-a-k-avoiding-array/description/">Determine the Minimum Sum of a k-avoiding Array</a></summary>
+Just a small variation to the above problem. 
+
+```java
+class Solution {
+    public int minimumSum(int n, int k) {
+        HashSet<Integer> hs=new HashSet<Integer>();
+        int i=1;
+        while(hs.size()<n){
+            if(!hs.contains(k-i)){
+                hs.add(i);
+            }
+            ++i;
+        }
+        int ans=0;
+        for(int ii:hs){
+            ans+=ii;
+        }
+        System.out.println(hs);
+        return ans;
+    }
+}
+```
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/check-if-strings-can-be-made-equal-with-operations-i/">Check if Strings Can be Made Equal With Operations I</a></summary>
+					Easy to understand problem, no such extra need to know algorithm and datastructure involved, just plain problem solving. The trick is, how you view the problem. The one thing, that really helped me was, first doing brute force of this, because, its very easy to do a brute force and it even works. Then after spending some time, thinking to optimize it, you will figure out how to use maps. As there are no logn algos or datastructures, that can help!! Lol.
+
+````java
+class Solution {
+    public boolean canBeEqual(String s1, String s2) {
+        HashMap<Character, HashSet<Integer>> hm=new HashMap<Character, HashSet<Integer>>();
+        for(int i=0;i<s1.length();i++){
+            if( !hm.containsKey(s1.charAt(i)) ){
+                hm.put(s1.charAt(i), new HashSet<Integer>());   
+            }
+            hm.get(s1.charAt(i)).add(i);
+        }
+        for(int i=0;i<s2.length();i++){
+            // System.out.println(s2.charAt(i)+" "+hm);
+            if(!hm.containsKey(s2.charAt(i)))return false;
+            // System.out.println("--");
+            if(hm.get(s2.charAt(i)).contains(i))hm.get(s2.charAt(i)).remove(i);
+            // else if(hm.get(s2.charAt(i)).contains(i+1))hm.get(s2.charAt(i)).remove(i+1);
+            else if(hm.get(s2.charAt(i)).contains(i+2))hm.get(s2.charAt(i)).remove(i+2);
+            // else if(hm.get(s2.charAt(i)).contains(i-1))hm.get(s2.charAt(i)).remove(i-1);
+            else if(hm.get(s2.charAt(i)).contains(i-2))hm.get(s2.charAt(i)).remove(i-2);
+            else return false;
+        }
+        return true;
+    }
+}
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/count-symmetric-integers/">Count Symmetric Integers</a></summary>
+					Well, I am not proud of this solution. Didn't want to give more time here…. As it was during contest and I knew it would pass tc. As you can see, there is a lot of wiggle room, to save tc.
+
+````java
+class Solution {
+    public int countSymmetricIntegers(int low, int high) {
+        int ans=0;
+        for(int i=low;i<=high;i++){
+            if((i+"").length()%2!=0)continue;
+            if(check(i))++ans;
+        }
+        return ans;
+    }
+    boolean check(int num){
+        String str=num+"";
+        int sum1=0, sum2=0;
+        for(int i=0;i<str.length()/2;i++){
+            sum1+=Integer.parseInt(str.charAt(i)+"");
+        }
+        for(int i=str.length()/2;i<str.length();i++){
+            sum2+=Integer.parseInt(str.charAt(i)+"");
+        }
+        return sum1==sum2;
+    }
+}
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/find-the-longest-equal-subarray/">Find the Longest Equal Subarray</a></summary>
+					Simple to understand, however, tricky to deliver. Tried multiplie attempts, listed all below. The solution was mesmarising, though, which involves the sliding window concept. Where we slide through the array, and for the element in that index, we delete those elements and see the size of the array left, if its greater than k, the second pointer moves forward, until it normalizes. I understad, the explanation might not be helpful, however, I suggest, for better understanding, see the answer4() below, and try drawing it. If you are able to draw the simulation successfully, you will easily understand the problem
+
+````java
+class Solution {
+    int specialCase(List<Integer> nums){
+        int prevValue=nums.get(0);
+        int ans=0, temp=1;
+        for(int i=1;i<nums.size();i++){
+            if(prevValue==nums.get(i)){
+                ++temp;
+            }
+            else{
+                ans=Math.max(temp, ans);
+                temp=1;
+                prevValue=nums.get(i);
+            }
+        }
+        ans=Math.max(temp,ans);
+        return ans;
+    }
+    int answer1(List<Integer> nums, int k){
+        if(k==0)return specialCase(nums);
+        HashMap<Integer, Deque<Integer>> hm=new HashMap<Integer, Deque<Integer>>();
+        HashMap<Integer, Deque<Integer>> hmReverse=new HashMap<Integer, Deque<Integer>>();
+        for(int i=0;i<nums.size();i++){
+            if(hm.containsKey(nums.get(i)))continue;
+            int noOfObstructions=0;
+            Deque<Integer> pq=new ArrayDeque<Integer>();
+            for(int j=i;j<nums.size();j++){
+                if(nums.get(j)==nums.get(i)){
+                    pq.add(noOfObstructions);
+                    noOfObstructions=0;
+                }
+                else{
+                    ++noOfObstructions;
+                }
+            }
+            hm.put(nums.get(i), new ArrayDeque<Integer>(pq));
+        }
+        for(int i=nums.size()-1;i>=0;i--){
+            if(hmReverse.containsKey(nums.get(i)))continue;
+            int noOfObstructions=0;
+            Deque<Integer> pq=new ArrayDeque<Integer>();
+            for(int j=i;j>=0;j--){
+                if(nums.get(j)==nums.get(i)){
+                    pq.add(noOfObstructions);
+                    noOfObstructions=0;
+                }
+                else{
+                    ++noOfObstructions;
+                }
+            }
+            hmReverse.put(nums.get(i), new ArrayDeque<Integer>(pq));
+        }
+        int ans=0;
+        System.out.println(hm);
+        System.out.println(hmReverse);
+        for (Map.Entry<Integer, Deque<Integer>> entry : hm.entrySet()) {
+            int k1=0, a=0;
+            Deque<Integer> pq=entry.getValue();
+            while(!pq.isEmpty()){
+                int temp=pq.removeFirst();
+                // System.out.println(entry.getKey()+" : "+temp);
+                k1+=temp;
+                if(k1<=k){
+                    ++a;
+                }
+                else{
+                    break;
+                }
+            }
+            ans=Math.max(ans, a);
+        }
+        for (Map.Entry<Integer, Deque<Integer>> entry : hmReverse.entrySet()) {
+            int k1=0, a=0;
+            Deque<Integer> pq=entry.getValue();
+            while(!pq.isEmpty()){
+                int temp=pq.removeFirst();
+                // System.out.println(entry.getKey()+" : "+temp);
+                k1+=temp;
+                if(k1<=k){
+                    ++a;
+                }
+                else{
+                    break;
+                }
+            }
+            ans=Math.max(ans, a);
+        }
+        return ans;
+    }
+    public int longestEqualSubarray(List<Integer> nums, int k) {
+        // return answer1(nums, k);
+        // return answer2(nums, k);
+        // return answer3(nums, k);
+        // return answer4(nums, k);
+        // return answer5(nums, k);
+        return answer6(nums.stream().mapToInt(i -> i).toArray(), k);
+    }
+    int answer6(int v[], int k ){
+        int n = v.length;
+        int i = 0;
+        int j = 0;
+        Map<Integer, Integer> m = new HashMap<>();
+        int ans = 1;
+        int mf = 0;
+        while (j < n) {
+            m.put(v[j], m.getOrDefault(v[j], 0) + 1);
+            mf = Math.max(mf, m.get(v[j]));
+            int rem = j - i + 1 - mf;
+            if (i < n && rem > k) {
+                m.put(v[i], m.get(v[i]) - 1);
+                i++;
+                // mf = Math.max(mf, m.get(v[j]));
+                rem = j - i + 1 - mf;
+            }
+            // ans = Math.max(ans, mf);
+            j++;
+        }
+        return mf;
+    }
+     int answer5(List<Integer> A, int k) {
+        int maxf = 0, i = 0, n = A.size();
+        Map<Integer, Integer> count = new HashMap<>();
+        for (int j = 0; j < n; j++) {
+            count.put(A.get(j), count.getOrDefault(A.get(j), 0) + 1);
+            maxf = Math.max(maxf, count.get(A.get(j)));
+            if (j - i + 1 - maxf > k) {
+                count.put(A.get(i), count.get(A.get(i)) - 1);
+                i++;
+            }
+        }
+        return maxf;
+    }
+    int answer4(List<Integer> nums, int k){
+        HashMap<Integer, Integer> hm=new HashMap<Integer, Integer>();
+        int j=0, count=0;
+        for(int i=0;i<nums.size();i++){
+            int noInI=nums.get(i);
+            int noInJ=nums.get(j);
+            hm.put(noInI, hm.getOrDefault(noInI,0)+1);
+            count=Math.max(count, hm.get(noInI));
+            if(i-j+1-count>k){
+                hm.put(noInJ, hm.get(noInJ)-1);
+                ++j;
+            }
+        }
+        return count;
+    }
+    int answer3(List<Integer> nums, int k){
+        HashMap<Integer, ArrayList<Integer>> hm=new HashMap<Integer, ArrayList<Integer>>();
+        HashMap<Integer, ArrayList<Integer>> hm1=new HashMap<Integer, ArrayList<Integer>>();
+        for(int i=0;i<nums.size();i++){
+            if(!hm.containsKey(nums.get(i))){
+                hm.put(nums.get(i), new ArrayList<Integer>());
+            }
+            hm.get(nums.get(i)).add(i);
+        }
+        for(Map.Entry<Integer, ArrayList<Integer>> entry:hm.entrySet()){
+            int key=entry.getKey();
+            ArrayList<Integer> value=entry.getValue();
+            ArrayList<Integer> arr=new ArrayList<Integer>();
+            for(int i=1;i<value.size();i++){
+                arr.add(value.get(i)-value.get(i-1)-1);
+            }
+            arr.add(k+1);
+            hm1.put(key, new ArrayList<Integer>(arr));
+        }
+        // System.out.println(hm1);
+        int ans=1;
+        for(Map.Entry<Integer, ArrayList<Integer>> entry:hm1.entrySet()){
+            ArrayList<Integer> value=entry.getValue();
+            int i=0, j=0, temp=0, sum=0;
+            while(j<value.size()){
+                // System.out.println("sum: "+sum);
+                if((sum)<=k){
+                    // System.out.println(sum+value.get(j)+" "+value.get(j)+" "+sum);
+                    ++temp;
+                    sum+=value.get(j);
+                    // System.out.println(entry.getKey()+" "+value.get(j)+" "+sum+" "+temp+" "+j);
+                    ++j;
+                }
+                else{
+                    // System.out.println("---");
+                    ans=Math.max(ans, temp);
+                    sum-=value.get(i);
+                    // sum=Math.max(sum,0);
+                    ++i;
+                    // System.out.println("---> "+value.size());
+                    --temp;
+                }
+            }
+            ans=Math.max(ans, temp);
+        }
+        return ans;
+    }
+    int answer2(List<Integer> nums, int k){
+        List<Integer> slidingWindow=new ArrayList<Integer>();
+        for(int i=0;i<nums.size();i++){
+            slidingWindow.add(-1);
+            for(int j=i+1;j<=Math.min(nums.size()-1, i+k+1); j++){
+                if(nums.get(i)==nums.get(j)){
+                    slidingWindow.set(slidingWindow.size()-1, j-i-1);
+                    break;
+                }
+            }
+        }
+        System.out.println(slidingWindow);
+        int ans=0;
+        for(int i=0;i<slidingWindow.size();i++){
+            int c=i, a=1, tempK=k;
+            while(c<slidingWindow.size() && slidingWindow.get(c)!=-1 && tempK-slidingWindow.get(c)>=0){
+                ++a;
+                tempK-=slidingWindow.get(c);
+                c+=slidingWindow.get(c)+1;
+            }
+            ans=Math.max(ans, a);
+        }
+        return ans;
+    }
+}
+
+
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/check-if-strings-can-be-made-equal-with-operations-ii/">Check if Strings Can be Made Equal With Operations II</a></summary>
+					The question, is similar to the I variation of the question, with just a fun twist, instead of i+2 and i-2 position, this time, the dirrerence of swapped elements should be even ! A small observation, solves the problem, see, if an odd no. is added with an even no. it will always result in and odd no. itself, and for even no. it will always result in an even no. therefore, we don't need the place of the alphabet, just to know, is it in odd or even, and then substract its freq. simple! Felt, really good, when I came up with the solution !! Lol.
+
+
+````java
+class Solution {
+    public boolean checkStrings(String s1, String s2) {
+        HashMap<Character, OddEven> hm=new HashMap<Character, OddEven>();
+        for(int i=0;i<s1.length();i++){
+            if( !hm.containsKey(s1.charAt(i)) ){
+                hm.put(s1.charAt(i), createOddEvenObj());   
+            }
+            if(i%2==0){
+                ++hm.get(s1.charAt(i)).even;   
+            }
+            else{
+                ++hm.get(s1.charAt(i)).odd;
+            }
+        }
+        for(int i=0;i<s2.length();i++){
+            // System.out.println(s2.charAt(i)+" "+hm);
+            if(!hm.containsKey(s2.charAt(i)))return false;
+            // System.out.println("--");
+            
+            //  even case
+            if(i%2==0){
+                if(hm.get(s2.charAt(i)).even>0){
+                    --hm.get(s2.charAt(i)).even;
+                }
+                else{
+                    return false;
+                }
+            }
+            //  odd case
+            else{
+                if(hm.get(s2.charAt(i)).odd>0){
+                    --hm.get(s2.charAt(i)).odd;
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    OddEven createOddEvenObj(){
+        return new OddEven();
+    }
+}
+class OddEven{
+    int odd=0, even=0;
+}
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/maximum-sum-of-almost-unique-subarray/">Maximum Sum of Almost Unique Subarray</a></summary>
+					Well, it’s a simple, sliding window problem.
+
+````java
+class Solution {
+    public long maxSum(List<Integer> nums, int m, int k) {
+        HashMap<Integer, Integer> hm=new HashMap<Integer, Integer>();
+        int i=0, j=i+k; long sum=0, ans=0;
+        while(i<j){
+            hm.put(nums.get(i), hm.getOrDefault(nums.get(i),0)+1);
+            sum+=nums.get(i);
+            ++i;
+        }
+        i=0;--j;
+        while(j<nums.size()){
+            if(hm.size()>=m){
+                ans=Math.max(ans, sum);
+            }   
+            
+            // System.out.println("j:"+nums.get(j)+" i:"+nums.get(i)+" sum:"+sum);
+            // remove the i part
+            sum-=nums.get(i);
+            hm.put(nums.get(i), hm.get(nums.get(i))-1);
+            if(hm.get(nums.get(i))==0){
+                hm.remove(nums.get(i));
+            }
+            ++i;++j;
+            if(j==nums.size())break;
+            
+            // add the j part
+            hm.put(nums.get(j), hm.getOrDefault(nums.get(j),0)+1);
+            sum+=nums.get(j);
+        }
+        return ans;
+    }
+}
+
+
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/minimum-operations-to-make-a-special-number/">Minimum Operations to Make a Special Number</a></summary>
+					It’s a simple thought experiment problem, really. If you know, the property of 25 multiplication, like nos. divisible by 25, ends with 00, 25,50,75, this question becomes pretty easy.
+
+````java
+class Solution {
+    public int minimumOperations(String num) {
+        return Math.min(forFive(num), forZero(num));
+    }
+    int forFive(String num){
+        int i=0, j=num.length()-1;
+        while(j>=0){
+            if(num.charAt(j)=='5'){
+                break;
+            }
+            else{
+                --j;
+            }
+        }
+        i=j-1;
+        while(i>=0){
+            if(num.charAt(j)=='0'){
+                if(num.charAt(i)=='5' || num.charAt(i)=='0'){
+                    break;
+                }
+            }
+            else if(num.charAt(j)=='5'){
+                if(num.charAt(i)=='2' || num.charAt(i)=='7'){
+                    break;
+                }
+            }
+            --i;
+        }
+        // System.out.println(i+" "+j);
+        if(i==-1)return num.length();
+        else{
+            return (j-i-1)+(num.length()-j-1);
+        }
+    }
+    
+    int forZero(String num){
+        int i=0, j=num.length()-1;
+        while(j>=0){
+            if(num.charAt(j)=='0'){
+                break;
+            }
+            else{
+                --j;
+            }
+        }
+        i=j-1;
+        while(i>=0){
+            if(num.charAt(j)=='0'){
+                if(num.charAt(i)=='5' || num.charAt(i)=='0'){
+                    break;
+                }
+            }
+            else if(num.charAt(j)=='5'){
+                if(num.charAt(i)=='2' || num.charAt(i)=='7'){
+                    break;
+                }
+            }
+            --i;
+        }
+        // System.out.println(i+" "+j);
+        if(i==-1)return num.length()-1;
+        else{
+            return (j-i-1)+(num.length()-j-1);
+        }
+    }
+}
+
+
+
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/longest-substring-with-at-least-k-repeating-characters/description/">Longest Substring with At Least K Repeating Characters</a></summary>
+					Easy to understand, however, a bit tricky to implement. Experimented a lot here. This problem can be solved in various ways, like sliding window, I used divide and conquer. There are better and smart ways, to deal with this problem than mine.
+
+````java
+class Solution {
+    public int longestSubstring(String s, int k) {
+        // return answer1(s,k);
+        return answer2(s,k);
+        // return answer3(s,k);
+    }
+    int answer3(String s, int k){
+        int arr[]=new int[26];
+        for(int i=0;i<s.length();i++){
+            char c=s.charAt(i);
+            ++arr[c-'a'];
+        }
+        HashSet<Character> ignoreTheseNutz=new HashSet<Character>();
+        HashSet<Integer> ignoreTheseIndexes=new HashSet<Integer>();
+        for(int i=0;i<26;i++){
+            if(arr[i]<k){
+                char c=(char)('a'+i);
+                ignoreTheseNutz.add(c);
+            }
+        }
+        for(int i=0;i<s.length();i++){
+            if(ignoreTheseNutz.contains(s.charAt(i))){
+                ignoreTheseIndexes.add(i);
+            }
+        }
+        ignoreTheseIndexes.add(s.length());
+        int ans=0, prev=0; arr=new int[26];
+        for(int i=0;i<=s.length();i++){
+            if(ignoreTheseIndexes.contains(i)){
+                boolean flag=true;
+                for(int i1=0;i1<26;i1++){
+                    if(arr[i1]==0)continue;
+                    if(arr[i1]<k){
+                        flag=false;
+                        break;
+                    }
+                }
+                if(!flag){
+                    // System.out.println("i: "+Arrays.toString(arr));
+                    ans=Math.max(ans, answer1(s.substring(prev, i), k));
+                }
+                else{
+                    // System.out.println("i: "+i+" "+Arrays.toString(arr));
+                    ans=Math.max(ans, i-prev);
+                }
+                prev=i+1;
+                arr=new int[26];
+            }
+            else{
+                ++arr[s.charAt(i)-'a'];
+            }
+        }
+        return ans;
+    }
+    int answer2(String s, int k){
+        int ans=0;
+        for(int unique=1;unique<=26;unique++){
+            HashMap<Character, Integer> currentUnique=new HashMap<Character, Integer>();
+            int windowStart=0, windowEnd=0;
+            int countAtleastK=0;
+            while(windowEnd<s.length()){
+                if(currentUnique.size()<=unique){
+                    char temp=s.charAt(windowEnd);
+                    currentUnique.put(temp, currentUnique.getOrDefault(temp, 0)+1);
+                    if(currentUnique.get(temp)==k){
+                        ++countAtleastK;
+                    }
+                    windowEnd++;
+                }
+                else{
+                    char temp=s.charAt(windowStart);
+                    if(currentUnique.get(temp)==k){
+                        --countAtleastK;
+                    }
+                    currentUnique.put(temp, currentUnique.get(temp)-1);
+                    if(currentUnique.get(temp)==0){
+                        currentUnique.remove(temp);
+                    }
+                    windowStart++;
+                }
+                // System.out.println(currentUnique+" "+countAtleastK);
+                if(currentUnique.size()==unique && countAtleastK==unique){
+                    ans=Math.max(ans, windowEnd-windowStart);
+                    // System.out.println(windowStart+" "+windowEnd+" "+countAtleastK+" "+currentUnique+" "+unique+" | "+ans);
+                }
+            }
+        }
+        return ans;
+    }
+    int answer1(String s, int k){
+        int ans=0;
+        for(int i=0;i<s.length();i++){
+            int arr[]=new int[26];
+            for(int j=i;j<s.length();j++){
+                char temp=s.charAt(j);
+                ++arr[temp-'a'];
+                if(arr[temp-'a']>=k){
+                    boolean flag=true;
+                    for(int c=0;c<26;c++){
+                        if(arr[c]==0)continue;
+                        if(arr[c]<k){
+                            flag=false;
+                            break;
+                        }
+                    }
+                    if(flag){
+                        ans=Math.max(ans, j-i+1);
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+}
+
+
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/count-k-subsequences-of-a-string-with-maximum-beauty/description/">Count K-Subsequences of a String With Maximum Beauty</a></summary>
+					An easy to understand question, somewhat challenging. The first key observation is, k can't be greater than 26. So, find the frequency of arrays, and then use recursion or dp to solve it. You can use lots of other ways. Below is just a snapshot, of the different ways, I have experimented to solve.
+
+````java
+class Solution {
+    HashMap<Character,Integer> hm;
+    int maxValue;
+    static int mod=1000000007;
+    public int countKSubsequencesWithMaxBeauty(String s, int k) {
+        /*brute force*/
+        // return answer1(s,k);
+
+        /*memoise*/
+        // return answer2(s,k);
+
+        // return answer3(s,k);
+
+        // return answer4(s,k);
+
+        return answer5(s,k);
+    }
+    long dpp[][];
+    int answer5(String s, int k){
+        if(k>26)return 0;
+        int arr[]=new int[26];
+        for(int i=0;i<s.length();i++){
+            ++arr[s.charAt(i)-'a'];
+        }
+        Arrays.sort(arr);
+        dpp=new long[26][27];
+        reverse(arr);
+        long answer=1; int taken=0;
+        for(int i=0;i<k;i++){
+            if(arr[i]==arr[k-1]||arr[i]==0)continue;
+            answer=(answer*arr[i])%mod;
+            ++taken;
+        }
+        for(int i=0;i<arr.length;i++){
+            if(arr[i]!=arr[k-1]){
+                arr[i]=0;
+            }
+        }
+        // System.out.println(Arrays.toString(arr)+" "+answer);
+        long ans= ((xyz5(arr, 0, k-taken)%mod)*(answer%mod))%mod;
+        // System.out.println(ans);
+        return (int)ans%mod;
+    }
+    void reverse(int arr[]){
+        for(int i=0;i<arr.length/2;i++){
+            int temp=arr[i];
+            arr[i]=arr[arr.length-i-1];
+            arr[arr.length-i-1]=temp;
+        }
+    }
+    long xyz5(int arr[], int index, int k){
+        // System.out.println(index+" "+k);
+        if(index>=26){
+            return k==0?1:0;
+        }
+        if(k<0||arr.length-index<k){
+            return 0;
+        }
+        if(arr[index]==0){
+            return xyz5(arr, index+1, k);
+        }
+        if(dpp[index][k]!=0)return dpp[index][k]%mod;
+        dpp[index][k] =((xyz5(arr, index+1, k-1)*arr[index])%mod+xyz5(arr, index+1, k)%mod)%mod;
+        return dpp[index][k]%mod;
+    }
+    long dp[][][];
+    int answer4(String s, int k){
+        if(k>26 || k>s.length()){
+            return 0;
+        }
+        int arr[]=new int[26];
+        for(int i=0;i<s.length();i++){
+            ++arr[s.charAt(i)-'a'];
+        }
+        hm=new HashMap<Character, Integer>();
+        for(char i:s.toCharArray()){
+            hm.put(i, hm.getOrDefault(i, 0)+1);
+        }
+        maxValue=findMaxValue(k);
+        dp=new long[26][27][8000];
+        for(long d[][]:dp)
+        for(long xyz[]:d){
+            for(int i=0;i<xyz.length;i++){
+                xyz[i]=-1;
+            }
+        }
+        // System.out.println(maxValue+" "+Arrays.toString(arr));
+        long answer=0;
+
+        /* memoising with recursion type 1 */
+        // answer=xyz41(0, k, arr, 0)%mod;
+        
+        // answer=xyz4(0, k, arr, 0)%mod;
+
+        /* memoising with recursion type 2 */
+        answer=xyz42(0, k, arr, 0)%mod;
+
+        // System.out.println(s);
+        return (int)answer;
+    }
+    long xyz4(int index, int k, int arr[], int sum){
+        if(k<0 || arr.length-index<k){
+            return 0;
+        }
+        if(sum==maxValue && k==0){
+            return 1;
+        }
+        if(index>=26){
+            return 0;
+        }
+        if(arr[index]==0){
+            return xyz4(index+1, k, arr, sum)%mod;
+        }
+        return ((xyz4(index+1, k-1, arr, sum+arr[index])*arr[index])%mod+xyz4(index+1, k, arr, sum)%mod)%mod;
+    }
+    long xyz41(int index, int k, int arr[], int sum){
+        if(k<0 || arr.length-index<k){
+            return 0;
+        }
+        if(sum==maxValue && k==0){
+            return 1;
+        }
+        if(index>=26){
+            return 0;
+        }
+        long ans=dp[index][k][sum];
+        // if(dp[index][k]!=-1){
+        //     return dp[index][k];
+        // }
+        if(ans!=-1)return ans;
+        if(arr[index]==0){
+            return xyz41(index+1, k, arr, sum)%mod;
+        }
+        ans= ((xyz41(index+1, k-1, arr, sum+arr[index])*arr[index])%mod + xyz41(index+1, k, arr, sum)%mod)%mod;
+        return ans;
+        // return ((xyz4(index+1, k-1, arr, sum+arr[index])*arr[index])%mod+xyz4(index+1, k, arr, sum)%mod)%mod;
+    }
+    long xyz42(int index, int k, int arr[], int sum){
+        if(k<0 || arr.length-index<k){
+            return 0;
+        }
+        if(sum==maxValue && k==0){
+            return 1;
+        }
+        if(index>=26){
+            return 0;
+        }
+        if(dp[index][k][sum]!=-1){
+            return dp[index][k][sum];
+        }
+        if(arr[index]==0){
+            return xyz42(index+1, k, arr, sum)%mod;
+        }
+        dp[index][k][sum]= ((xyz42(index+1, k-1, arr, sum+arr[index])*arr[index])%mod + xyz42(index+1, k, arr, sum)%mod)%mod;
+        return dp[index][k][sum];
+    }
+    int answer3(String s, int k){
+        hm=new HashMap<Character, Integer>();
+        for(char i:s.toCharArray()){
+            hm.put(i, hm.getOrDefault(i, 0)+1);
+        }
+        maxValue=findMaxValue(k);
+        TreeMap<Integer, ArrayList<Character>> tm=new TreeMap<Integer, ArrayList<Character>>();
+        for (Map.Entry<Character, Integer> entry : hm.entrySet()) {
+            char temp=entry.getKey();
+            int cc=entry.getValue();
+            if(!tm.containsKey(cc)){
+                tm.put(cc, new ArrayList<Character>());
+            }
+            tm.get(cc).add(temp);
+        }
+        HashSet<Character> toBeConsidered=new HashSet<Character>();
+        int c=0, key=tm.lastKey();
+        while(c<k){
+            // System.out.println(toBeConsidered+" "+c);
+            toBeConsidered.addAll(tm.get(key));
+            c+=tm.get(key).size();
+            if(tm.lowerKey(key)==null)break;
+            key=tm.lowerKey(key);
+        }
+        // System.out.println(toBeConsidered);
+        return xyzAnswer3(s, 0, k, toBeConsidered, new HashSet<Character>(), 0);
+        // return xyz(s, 0, k, new HashSet<Character>(), 0);
+    }
+    int ddp[][];
+    int answer2(String s, int k){
+        hm=new HashMap<Character, Integer>();
+        for(char i:s.toCharArray()){
+            hm.put(i, hm.getOrDefault(i, 0)+1);
+        }
+        maxValue=findMaxValue(k);
+        ddp=new int[150][150];
+       
+    //    for(int i[][]:dp)
+        for(int j[]:ddp){
+            for(int k1=0;k1<j.length;k1++){
+                j[k1]=-1;
+            }
+        }
+        return xyz1(s, 0, k, new HashSet<Character>(), 0);
+    }
+    int xyz1(String s, int currIndex, int k, HashSet<Character> alreadyOccuredCharacters, int currentValue){
+        if(maxValue==currentValue && k==0){
+            return 1;
+        }
+        if(k==0){
+            return 0;
+        }
+        if(currIndex>=s.length()){
+            return 0;
+        }
+        if(alreadyOccuredCharacters.contains(s.charAt(currIndex))){
+            return xyz(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+        }
+        int ans=ddp[k][currentValue];
+        if(ans!=-1)return ans;
+        // if(ddp[k][currentValue]!=-1)return ddp[k][currentValue];
+        HashSet<Character> temp=new HashSet<Character>(alreadyOccuredCharacters);
+        temp.add(s.charAt(currIndex));
+        // ddp[k][currentValue]= xyz1(s, currIndex+1, k-1, temp, currentValue+hm.get(s.charAt(currIndex))) + xyz1(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+        // return ddp[k][currentValue];
+
+        ans= xyz1(s, currIndex+1, k-1, temp, currentValue+hm.get(s.charAt(currIndex))) + xyz1(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+        return ans;
+    }
+    int answer1(String s, int k){
+        hm=new HashMap<Character, Integer>();
+        for(char i:s.toCharArray()){
+            hm.put(i, hm.getOrDefault(i, 0)+1);
+        }
+        maxValue=findMaxValue(k);
+        return xyz(s, 0, k, new HashSet<Character>(), 0);
+    }
+    int findMaxValue(int k){
+        ArrayList<ArrayList<Integer>> arr=new ArrayList<>();
+        for (Map.Entry<Character, Integer> entry : hm.entrySet()) {
+            ArrayList<Integer> temp=new ArrayList<Integer>();
+            temp.add(entry.getKey()-'a');
+            temp.add(entry.getValue());
+            arr.add(temp);
+        }
+        Collections.sort(arr, (a,b)->(-a.get(1)+b.get(1)));
+        int sum=0;
+        for(int i=0;i<Math.min(k,arr.size());i++){
+            sum+=arr.get(i).get(1);
+        }
+        return sum;
+    }
+    String getCharacterString(HashMap<Character, Integer> hm){
+        String s="";
+        for (Map.Entry<Character, Integer> entry : hm.entrySet()) {
+            s+=entry.getKey();
+        }
+        return s;
+    }
+    int xyz(String s, int currIndex, int k, HashSet<Character> alreadyOccuredCharacters, int currentValue){
+        if(maxValue==currentValue && k==0){
+            return 1;
+        }
+        if(k==0){
+            return 0;
+        }
+        if(currIndex>=s.length()){
+            return 0;
+        }
+        if(alreadyOccuredCharacters.contains(s.charAt(currIndex))){
+            return xyz(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+        }
+        HashSet<Character> temp=new HashSet<Character>(alreadyOccuredCharacters);
+        temp.add(s.charAt(currIndex));
+        return xyz(s, currIndex+1, k-1, temp, currentValue+hm.get(s.charAt(currIndex))) + xyz(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+    }
+    int xyzAnswer3(String s, int currIndex, int k, HashSet<Character> toBeConsidered, HashSet<Character> alreadyOccuredCharacters, int currentValue){
+        if(maxValue==currentValue && k==0){
+            return 1;
+        }
+        if(!toBeConsidered.contains(s.charAt(currIndex))){
+            return xyz(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+        }
+        if(k==0){
+            return 0;
+        }
+        if(currIndex>=s.length()){
+            return 0;
+        }
+        if(alreadyOccuredCharacters.contains(s.charAt(currIndex))){
+            return xyz(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+        }
+        HashSet<Character> temp=new HashSet<Character>(alreadyOccuredCharacters);
+        temp.add(s.charAt(currIndex));
+        return xyz(s, currIndex+1, k-1, temp, currentValue+hm.get(s.charAt(currIndex))) + xyz(s, currIndex+1, k, alreadyOccuredCharacters, currentValue);
+    }
+}
+
+
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/minimum-operations-to-form-subsequence-with-target-sum/description/">Minimum Operations to Form Subsequence With Target Sum</a></summary>
+					Well, since, the array contains only power of 2, values, you can assume, only the nos. greater than the array sum, aren't eligible. After this, sort the array, then substract and see, if you can match the target or not. If you face a road block, then, divide the no. You can also, use bitwise to solve it, basically, for the target, try getting the 1's and 0's from the array! <br>Below are my implementations:
+
+````java
+class Solution {
+    public int minOperations(List<Integer> nums, int target) {
+        // return answer1(nums, target);
+        return answer2(nums, target);
+    }
+    int answer2(List<Integer> nums, int target){
+        if(nums.stream().mapToLong(Integer::longValue).sum()<target)return -1;
+        int arr[]=new int[32];
+        for(int i:nums){
+            ++arr[(int)(Math.log(i)/Math.log(2))];
+        }
+        int res=0;
+        for(int i=0;i<31;i++,target=target>>1){
+            // System.out.println(target);
+            if((target&1)==1){
+                if(arr[i]>0){
+                    --arr[i];
+                }
+                else{
+                    res+=getJob(arr,i);
+                }
+            }
+            arr[i+1]+=arr[i]/2;
+        }
+        return res;
+    }
+    int getJob(int arr[], int x){
+        int i;
+        for(i=x+1;i<31;i++){
+            if(arr[i]>0){
+                --arr[i];
+                break;
+            }
+        }
+        for(int j=x;j<i;j++){
+            ++arr[j];
+        }
+        return i-x;
+    }
+    int answer1(List<Integer> nums, int target){
+        Collections.sort(nums);
+        long tot=nums.stream().mapToLong(Integer::longValue).sum();
+        Stack<Integer> st=new Stack<Integer>();
+        for(int i:nums){
+            st.push(i);
+        }
+        int res=0;
+        if(tot<target)return -1;
+        while(target>0){
+            // System.out.println(res+" "+st+" "+tot);
+            int a=st.pop();
+            if(tot-a<target){
+                if(a>target){
+                    st.push(a/2);
+                    st.push(a/2);
+                    ++res;
+                }
+                else{
+                    target-=a;
+                    tot-=a;
+                }
+            }
+            else{
+                tot-=a;
+            }
+        }
+        return res;
+    }
+}
+
+
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/count-of-interesting-subarrays/description/">Count of Interesting Subarrays</a></summary>
+Good question, with a little bit of familiarity of prefix sum, it can be solved. The bruteforece is quiet intuitive, that you store all the ith values, that fulfils the equation then use double loops to see, which fulfils the second condition and add the answers. In order to remove the double loop, just a thought that, the cnt is added and then moduloed, so, if we store it in hashmap, this essentially fulfils the purpose of double loops, and converting to single loop. This explanation, might seem vague, I suggest, to draw it, and you will be able to figure it out.
+
+````java
+class Solution {
+    public long countInterestingSubarrays(List<Integer> nums, int modulo, int k) {
+        /*brute force, without calculating prefix sum, just two arrays, calculating sum and checking that sum*/
+        // return method1(nums, modulo, k);
+        /*making a prefix sum, then (prefix[r]-prefix[l-1])% module ==k, count them*/
+        // return method3(nums, modulo, k);
+        /*rearranging the above equation, to, (prefix[r]%modulo)=(prefix[l-1]+k)%modulo*/
+        // return method4(nums, modulo, k);
+        return method5(nums, modulo, k);
+    }
+    long method4(List<Integer> nums, int modulo, int k){
+        int arr[]=new int[nums.size()];
+        // create array with the condition satisfying and not satisfying condition
+        for(int i=0;i<nums.size();i++){
+            arr[i]=nums.get(i)%modulo==k?1:0;
+        }
+        // create a prefix array
+        long prefix[]=new long[nums.size()+1];
+        for(int i=1;i<prefix.length;i++){
+            prefix[i]=prefix[i-1]+arr[i-1];
+        }
+        long cnt=0;
+        // System.out.println(Arrays.toString(prefix));
+        for(int r=prefix.length-1;r>=0;r--){
+            for(int l=0;l<r;l++){
+                long sum2=(k+prefix[l])%modulo;
+                if(sum2==prefix[r]%modulo){
+                    ++cnt;
+                }
+            }
+        }
+        return cnt;
+    }
+    long method5(List<Integer> nums, int modulo, int k){
+        int arr[]=new int[nums.size()];
+        // create array with the condition satisfying and not satisfying condition
+        for(int i=0;i<nums.size();i++){
+            arr[i]=nums.get(i)%modulo==k?1:0;
+        }
+        // create a prefix array
+        long prefix[]=new long[nums.size()+1];
+        for(int i=1;i<prefix.length;i++){
+            prefix[i]=prefix[i-1]+arr[i-1];
+        }
+        long cnt=0;
+        
+        HashMap<Long, Long> hm=new HashMap<Long, Long>();
+        // for(int l=0;l<prefix.length;l++){
+        //     long sum2=(k+prefix[l])%modulo;
+        //     hm.put(sum2, hm.getOrDefault(sum2, 0l)+1);
+        // }
+        for(int r=0;r<prefix.length;r++){
+            long sum1=prefix[r]%modulo;
+            cnt+=hm.getOrDefault(sum1,0l);
+            long sum2=(k+prefix[r])%modulo;
+            hm.put(sum2, hm.getOrDefault(sum2, 0l)+1);
+        }
+        // System.out.println(Arrays.toString(prefix));
+        // for(int r=prefix.length-1;r>=0;r--){
+        //     for(int l=0;l<r;l++){
+        //         long sum2=(k+prefix[l])%modulo;
+        //         if(sum2==prefix[r]%modulo){
+        //             ++cnt;
+        //         }
+        //     }
+        // }
+        return cnt;
+    }
+    long method3(List<Integer> nums, int modulo, int k){
+        int arr[]=new int[nums.size()];
+        // create array with the condition satisfying and not satisfying condition
+        for(int i=0;i<nums.size();i++){
+            arr[i]=nums.get(i)%modulo==k?1:0;
+        }
+        // create a prefix array
+        long prefix[]=new long[nums.size()+1];
+        for(int i=1;i<prefix.length;i++){
+            prefix[i]=prefix[i-1]+arr[i-1];
+        }
+        long cnt=0;
+        // System.out.println(Arrays.toString(prefix));
+        for(int r=prefix.length-1;r>=0;r--){
+            for(int l=0;l<r;l++){
+                long sum1=prefix[r]-prefix[l];
+                if(sum1%modulo==k){
+                    ++cnt;
+                }
+            }
+        }
+        return cnt;
+    }
+    long method1(List<Integer> nums, int modulo, int k){
+        List<Boolean> satisfies=new ArrayList<Boolean>();
+        for(int i:nums){
+            satisfies.add(i%modulo==k);
+        }
+        long ans=0;
+        for(int i=0;i<nums.size();i++){
+            long cnt=0; 
+            for(int j=i;j<nums.size();j++){
+                if(satisfies.get(j)){
+                    ++cnt;
+                }
+                if(cnt%modulo==k){
+                    ++ans;
+                }
+            }
+        }
+        return ans;
+    }
+}
+````
+</details>
+<details>
+<summary><a href="https://codeforces.com/contest/1872/problem/E">Data Structures Fan</a></summary>
+					This is an advanced bitwise problem, although, understanding the problem is easy, and brute force method can be easily be enforced, however, its not easy to come up with the bitwise solution. Since, I had to have rounds with the editorial and multiple times, draw out the solution, in order to understand and arrive to the solution, I feel, its best, for people to view the official editorial and try drawing out the solution.
+
+
+````java
+import java.io.*;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+import java.util.function.BiFunction;
+
+public class DataStructureFan1 {
+    public static void main(String[] args)throws IOException {
+        String file="D:\\usaco.guide\\testFile.txt";
+        BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+//        BufferedReader x=new BufferedReader(new FileReader(file));
+        int testCases=Integer.parseInt(x.readLine());
+        while(testCases-->0){
+            int n=Integer.parseInt(x.readLine());
+            StringTokenizer st=new StringTokenizer(x.readLine());
+            int xor0=0, xor1=0, preXor[]=new int[n+1], allXors=0;
+            int arr[]=new int[n];
+            for(int i=0;i<n;i++){
+                arr[i]=Integer.parseInt(st.nextToken());
+            }
+            String s=x.readLine();
+            for(int i=1;i<=n;i++){
+                if('1'==s.charAt(i-1)){
+                    xor1^=arr[i-1];
+                }
+                else{
+                    xor0^=arr[i-1];
+                }
+                preXor[i]=preXor[i-1]^arr[i-1];
+            }
+            int query=Integer.parseInt(x.readLine());
+            ArrayList<Integer> answers=new ArrayList<>();
+            for(int i=0;i<query;i++){
+                st=new StringTokenizer(x.readLine());
+                int a=Integer.parseInt(st.nextToken());
+                if(a==1){
+                    int l=Integer.parseInt(st.nextToken());
+                    int r=Integer.parseInt(st.nextToken());
+                    allXors^=preXor[l-1]^preXor[r];
+                }
+                else {
+                    int temp=Integer.parseInt(st.nextToken());
+                    if(temp==1){
+                        answers.add(xor1^allXors);
+                    }
+                    else{
+                        answers.add(xor0^allXors);
+                    }
+                }
+            }
+            for(int i:answers){
+                System.out.print(i+" ");
+            }
+            System.out.println();
+        }
+    }
+    static class FastReader {
+        final private int BUFFER_SIZE = 1 << 16;
+        private DataInputStream din;
+        private byte[] buffer;
+        private int bufferPointer, bytesRead;
+
+        public FastReader() {
+            din = new DataInputStream(System.in);
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public FastReader(String file_name) throws IOException {
+            din = new DataInputStream(new FileInputStream(file_name));
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+
+        public String nextLine() {
+            try{
+                byte[] buf = new byte[10000000]; // line length
+                int cnt = 0, c;
+                while ((c = read()) != -1) {
+                    if (c == '\n')
+                        break;
+                    buf[cnt++] = (byte) c;
+                }
+                return new String(buf, 0, cnt);
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+                return null;
+            }
+        }
+
+        public int nextInt()  {
+            int ret = 0;
+            try {
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+                do{
+                    ret = ret * 10 + c - '0';
+                }  while ((c = read()) >= '0' && c <= '9');
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public long nextLong()   {
+
+            try {
+                long ret = 0;
+                byte c = read();
+                while (c <= ' ') c = read();
+                boolean neg = (c == '-');
+                if (neg)
+                    c = read();
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (neg)
+                    return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public double nextDouble()  {
+
+            try {
+                double ret = 0, div = 1;
+                byte c = read();
+                while (c <= ' ')
+                    c = read();
+                boolean neg = (c == '-');
+                if (neg) c = read();
+
+                do {
+                    ret = ret * 10 + c - '0';
+                }
+                while ((c = read()) >= '0' && c <= '9');
+                if (c == '.') {
+                    while ((c = read()) >= '0' && c <= '9') {
+                        ret += (c - '0') / (div *= 10);
+                    }
+                }
+
+                if (neg) return -ret;
+                return ret;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        private void fillBuffer() throws IOException{
+            bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE);
+            if (bytesRead == -1)
+                buffer[0] = -1;
+        }
+
+        private byte read() throws IOException  {
+            try{
+                if (bufferPointer == bytesRead)
+                    fillBuffer();
+                return buffer[bufferPointer++];
+            }catch(Exception e){
+                System.out.println(e.getMessage());
+                return -1;
+            }
+        }
+
+        public void close() throws IOException {
+            if (din == null)
+                return;
+            din.close();
+        }
+    }
+}
+````
+</details>
+
+### Day 10: April 11, 2024
