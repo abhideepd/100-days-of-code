@@ -5971,3 +5971,167 @@ public class DataStructureFan1 {
 </details>
 
 ### Day 10: April 11, 2024
+
+**Progress:**
+Upsolved some of the problems, from the virtual contest (leetcode [Weekly Contest 391](https://leetcode.com/contest/weekly-contest-391/)) and Live Contest (Leetcode [Weekly Contest 392](https://leetcode.com/contest/weekly-contest-392/)), which I gave last week. In the virtual contest, was able to solve 2 problems, however, in the live contest, was only able to solve 1 problem, I guess, the nerves got me :(
+
+**Thoughts:** The questions, in the contest were as follows:
+
+***
+***Virtual Contest***
+<details>
+<summary><a href="https://leetcode.com/problems/harshad-number/description/">Hashed Number</a></summary>
+Solved it in the contest itself, was a very easy question. <br>
+Implementation:
+
+````java
+class Solution {
+    public int sumOfTheDigitsOfHarshadNumber(int x) {
+        int temp=x, sumOfDigits=0;
+        while(temp!=0){
+            sumOfDigits+=temp%10;
+            temp=temp/10;
+        }
+        if(x%sumOfDigits==0)return sumOfDigits;
+        return -1;
+    }
+}
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/water-bottles-ii/">Water Bottles II</a></summary>
+Although, it was an easy question, however, wasn't able to solve it in the contest, I don't know why, I think, it was due to anxiety. It is pretty much a simulation problem, do whatever the question is instructing and you will easily arrive to the answer. <br>
+Implementation:
+
+````java
+class Solution {
+    public int maxBottlesDrunk(int numBottles, int numExchange) {
+        int emptyBottles=0, totalBottlesDrunk=0;
+        while(emptyBottles>=0){
+            totalBottlesDrunk+=numBottles;
+            emptyBottles+=numBottles;
+            numBottles=0;
+            emptyBottles-=numExchange;
+            ++numBottles;
+            ++numExchange;
+        }
+        return totalBottlesDrunk;
+    }
+}
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/count-alternating-subarrays/description/">Count Alternating Subarrays</a></summary>
+Not very easy, however, it takes time to see the pattern, but once you see it, can be easily done. Solved it in the contest. If you observe, if you find an alternating subarray, or take any alternating subarray, it can be divided further, although how much further ? If you draw some examples, then you will figure out, its sum of nos. from 1 to (length of array) i.e. assume, length of the array to be n, no of subarrays, that can be created is n*(n+1)/2. So, taking this observation, iterate through the loop adding the sum, whenever you encounter, there is equal no. and breaking the property of alternating subarray, store the sum and make the sum 0 and continue. After this step, use the formula, dipicted prior, for all the sums, stored in the array, and you are done! <br>
+Implementation:
+
+````java
+class Solution {
+    public long countAlternatingSubarrays(int[] nums) {
+        // return solve(nums, i);
+        long sum=0;
+        ArrayList<Long> sums=new ArrayList<Long>();
+        for(int i=1;i<nums.length;i++){
+            if(nums[i-1]!=nums[i])++sum;
+            else{
+                sums.add(sum);
+                sum=0;
+            }
+        }
+        sums.add(sum);
+        sum=0;
+        long ans=0;
+        for(long summ:sums){
+            ans+=(summ*(summ+1))/2;
+        }
+        ans+=nums.length;
+        return ans;
+    }
+    long solve(int nums[], int index){
+        if(index==nums.length){
+            return 0;
+        }
+        return 0;
+        // if(index==0)
+    }
+}
+````
+</details>
+
+***
+***Live Contest***
+
+<details>
+<summary><a href="https://leetcode.com/problems/lexicographically-smallest-string-after-operations-with-constraint/description/">Lexicographically Smallest String After Operations With Constraint</a></summary>
+Couldn't solve in the contest, however, worse, was easily able to solve after the contest, I guess, I have some kind of anxiety and nerves get the best of me. Moye Moye :(. So, the problem, is quite easy to understand, however, is a little bit tricky to implement. There is a simple observation, suppose, there is a strong "lzzzzzzzzzzz" and k=10, so, there are 10 z's in the string which can be easily converted to a, however, if we reduce l, by 10, we get 'c', so compare these two strings "czzzzzzzzzzz" and "laaaaaaaaaaa" both of them, updated by k value, needless to say, the first string is smaller. So, extrapolating this reasoning, we start with the 1st character of the string and try to reduce it to as low as possible. If k remains, we move ahead, else break the loop. If you understand this observation, with some hit and trial, you can arrive at the solution, with minimal difficulty.<br>
+Implementation:
+
+````java
+class Solution {
+    HashMap<Character,Integer> hm;
+    public String getSmallestString(String s, int k) {   
+        hm=new HashMap<Character,Integer>();     
+        for(char i='a';i<='z';i++){
+            hm.put(i,i-'a');
+        }
+
+        char arr[]=s.toCharArray();
+        for(int i=0;i<arr.length;i++){
+            int temp=minimumDistanceFrom_a(arr[i]);
+            if(temp>k){
+                arr[i]=(char)(arr[i]-k);
+                break;
+            }
+            k=k-temp;
+            arr[i]='a';
+        }
+        return new String(arr);
+    }
+    int minimumDistanceFrom_a(char c){
+        int a=hm.get('z')-hm.get(c)+1;
+        int b=hm.get(c);
+        return Math.min(a,b);
+    }
+}
+````
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/minimum-operations-to-make-median-of-array-equal-to-k/description/">Minimum Operations to Make Median of Array Equal to K
+</a></summary>
+This problem was also, was unsolvable in the contest, however, to my fucking disappointment, I was able to solve it, right after the contest, that too, like the previous problem, within half an hour, coupled with, writing this update. I really, have to deal with the anxiety man!! The problem, essentially unwraps, based on a small observation. What's the medial ? Its nothing, but the center most element (as mentioned in the question). So, we have to sort the array, there is no other way. After which, the median given, we have to compare it with the median in the array. If the median is greater than the average, then, the elements, prior to the median is smaller, however, we need to check, if the elements post the median are still bigger or not. Traverse accordingly, and add the difference. Its best to simulate this on paper, and you can instantly view the simulation. Once you see it, its easily implementable  <br>
+Implementation:
+
+````java
+class Solution {
+    public long minOperationsToMakeMedianK(int[] nums, int k) {
+        Arrays.sort(nums);
+        int n=nums.length/2;
+        long ans=Math.abs(nums[n]-k);
+        // System.out.println(ans+" "+nums[n]+" "+k);
+        if(k>nums[n]){
+            for(int i=n+1;i<nums.length;i++){
+                if(nums[i]<k){
+                    ans+=(long)(k-nums[i]);
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        else{
+            for(int i=n-1;i>=0;i--){
+                if(nums[i]>k){
+                    ans+=(long)(nums[i]-k);
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+}
+````
+</details>
+
+***
