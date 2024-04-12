@@ -6135,3 +6135,180 @@ class Solution {
 </details>
 
 ***
+### Day 11: April 12, 2024
+**Progress:**
+Attempted to upsolve the live contest as well as the virtual contest problem. I assumed, I would be able to solve both, however, was just able to solve one. Other than that, attempt a hard question, which I still can't wrap my head around, that question is [Omask Metro (Hard)](https://codeforces.com/problemset/problem/1843/F2)
+
+**Thoughts:**
+
+***Live Contest***
+<details>
+<summary><a href="https://leetcode.com/problems/minimum-cost-walk-in-weighted-graph/">Minimum Cost Walk in Weighted Graph</a></summary>
+The problem looks frightening and complex, but the reality is a let down, once you observe some key tricks. So, the first trick, is, we have to find the max and, and the most confusing part is, even if you reach from point a to point b, then you can visit other nodes, to further reduce your answer. Well, that's the trick, if you find the lowest value, inside that component, then no matter what you and it with that value, it will either stay the same or reduce further, this is due the the property of and itself, which is true only when both the respective places are true. An off bit, can never be on. So keeping this in mind, we can assume, that, what ever is the total "and" for a component, it will be the lowest. So, keeping this in mind, we simply, find such components with dfs and find the component's and and store them. When we traverse the query, for the solution, then,we simply see, if they belong to the same component or not. If they belong to the same component, then we, give the answer, else, its unreachable!
+<br>
+Implementation:
+
+````java
+class Solution {
+    HashMap<ArrayList<Integer>, Integer> edgeWeight;
+    HashMap<Integer, ArrayList<Integer>> edge;
+    public int[] minimumCost(int n, int[][] edges, int[][] query) {
+        edge=new HashMap<Integer,ArrayList<Integer>>();
+        edgeWeight=new HashMap<ArrayList<Integer>, Integer>();
+        for(int e[]:edges){
+            putInGraph(e);
+            putInEdge(e);
+        }
+        HashSet<Integer> visited=new HashSet<Integer>();
+        int componentIndex=1;
+        int component[]=new int[n];
+        int answer[]=new int[n];
+        for(int i=0;i<n;i++){
+            if(visited.contains(i))continue;
+            Stack<Integer> st=new Stack<Integer>();
+            ArrayList<Integer> tempArr=new ArrayList<Integer>();
+            st.add(i);
+            int componentAnd=0;
+            boolean firstTimeFlag=true;
+            while(!st.isEmpty()){
+                int parentNode=st.pop();
+                if(visited.contains(parentNode))continue;
+                visited.add(parentNode);
+                tempArr.add(parentNode);
+                for(int currentNode:edge.getOrDefault(parentNode,new ArrayList<Integer>())){
+                    if(firstTimeFlag){
+                        firstTimeFlag=false;
+                        componentAnd=getEdgeWeight(parentNode, currentNode);
+                    }
+                    else{
+                        componentAnd=componentAnd&getEdgeWeight(parentNode,currentNode);
+                    }
+                    st.push(currentNode);
+                }
+            }
+            for(int currentNode:tempArr){
+                component[currentNode]=componentIndex;
+                answer[currentNode]=componentAnd;
+            }
+            ++componentIndex;
+        }
+        int ans[]=new int[query.length];
+        for(int i=0;i<query.length;i++){
+            int a=query[i][0];
+            int b=query[i][1];
+            if(component[a]==component[b] && component[a]!=0){
+                ans[i]=answer[a];
+            }
+            else{
+                ans[i]=-1;
+            }
+        }
+        return ans;
+    }
+    void putInGraph(int e[]){
+        if(!edge.containsKey(e[0])){
+            edge.put(e[0],new ArrayList<Integer>());
+        }
+        if(!edge.containsKey(e[1])){
+            edge.put(e[1],new ArrayList<Integer>());
+        }
+        edge.get(e[0]).add(e[1]);
+        edge.get(e[1]).add(e[0]);
+    }
+    void putInEdge(int e[]){
+        ArrayList<Integer> temp1=new ArrayList<Integer>();
+        temp1.add(e[0]);
+        temp1.add(e[1]);
+        if(edgeWeight.containsKey(temp1)){
+            edgeWeight.put(temp1,edgeWeight.get(temp1)&e[2]);
+        }
+        else{
+            edgeWeight.put(temp1,e[2]);
+        }
+
+        ArrayList<Integer> temp2=new ArrayList<Integer>();
+        temp2.add(e[1]);
+        temp2.add(e[0]);
+        if(edgeWeight.containsKey(temp2)){
+            edgeWeight.put(temp2,edgeWeight.get(temp1)&e[2]);
+        }
+        else{
+            edgeWeight.put(temp2,e[2]);
+        }
+    }
+    int getEdgeWeight(int a, int b){
+        ArrayList<Integer> temp=new ArrayList<Integer>();
+        temp.add(a);
+        temp.add(b);
+        return edgeWeight.get(temp);
+    }
+}
+````
+
+You can also, use Disjoint Set Union Datastructure, if you are familiar with it. Just reduces the complexity of writing code ie. makes the code more readable and faster. Although, the above one is also passing TC, at 100ms, which isn't a problem
+<br>
+Implementation:
+
+````java
+class Solution {
+    int parent[];
+    int size[];
+    public int[] minimumCost(int n, int[][] edges, int[][] query) {
+        parent=new int[n];
+        size=new int[n];
+        int ans[]=new int[n];
+        Arrays.fill(ans,Integer.MAX_VALUE);
+        Arrays.fill(size,1);
+        for(int i=0;i<n;i++){
+            parent[i]=i;
+        }
+        for(int i=0;i<edges.length;i++){
+            int a=edges[i][0];
+            int b=edges[i][1];
+            int val=edges[i][2];
+            int parentOf_a=getParent(a);
+            int parentOf_b=getParent(b);
+            if(parentOf_a!=parentOf_b){
+                if(size[parentOf_a]<size[parentOf_b]){
+                    parent[parentOf_a]=parentOf_b;
+                    size[parentOf_b]+=size[parentOf_a];
+                    ans[parentOf_b]=ans[parentOf_b]&ans[parentOf_a]&val;
+                }
+                else{
+                    parent[parentOf_b]=parentOf_a;
+                    size[parentOf_a]+=size[parentOf_b];
+                    ans[parentOf_a]=ans[parentOf_a]&ans[parentOf_b]&val;
+                }
+            }
+            else{
+                ans[parentOf_a]=ans[parentOf_a]&val;
+            }
+        }
+        int answer[]=new int[query.length];
+        int c=0;
+        for(int q[]:query){
+            int a=q[0];
+            int b=q[1];
+            int parent_a=getParent(a);
+            int parent_b=getParent(b);
+            answer[c]=-1;
+            if(parent_a==parent_b){
+                answer[c]=ans[parent_a];
+            }
+            ++c;
+        }
+        return answer;
+    }
+    int getParent(int x){
+        if(x==parent[x]){
+            return x;
+        }
+        return getParent(parent[x]);
+    }
+}
+````
+
+</details>
+
+***
+
