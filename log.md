@@ -6312,3 +6312,8 @@ class Solution {
 
 ***
 
+### Day 12: April 13, 2024
+
+**Progress:**
+Went all in, to solve [Omask Metro (Hard)](https://codeforces.com/problemset/problem/1843/F2) and upsolve previous contest problem [Minimize Manhattan Distances](https://leetcode.com/problems/minimize-manhattan-distances/description/). Tried all my ideas, however, wasn't able to pass the TCs. Have started to get help of editorials. Its beneficial to know, where the holes in your understanding lies! Will soon update, if I am able to solve them.
+
