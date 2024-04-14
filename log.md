@@ -6317,3 +6317,546 @@ class Solution {
 **Progress:**
 Went all in, to solve [Omask Metro (Hard)](https://codeforces.com/problemset/problem/1843/F2) and upsolve previous contest problem [Minimize Manhattan Distances](https://leetcode.com/problems/minimize-manhattan-distances/description/). Tried all my ideas, however, wasn't able to pass the TCs. Have started to get help of editorials. Its beneficial to know, where the holes in your understanding lies! Will soon update, if I am able to solve them.
 
+### Day 13: April 14, 2024
+
+**Progress:**
+Well tried again, today, however, not with that intensity, to solve [Omask Metro (Hard)](https://codeforces.com/problemset/problem/1843/F2), but lost the battle, however, came pretty close, it won't stand long. However, went Gengis Khan, to upsolve previous contest problem [Minimize Manhattan Distances](https://leetcode.com/problems/minimize-manhattan-distances/description/) and finally conquered it! Not only that, did a complete analysis, as to where were the holes in my understanding and where I went wrong and what I did right, because, after trying for a while, I arrived to the correct solution, however didn't know, where I went wrong previously and why this solution is not working, and the previous ones were not working!
+
+**Thoughts:**
+Really enjoyed solving this problem [Minimize Manhattan Distances](https://leetcode.com/problems/minimize-manhattan-distances/description/), learnt a lot of stuff, explaining with details, all my implementations! Hop in!
+
+<details>
+<summary>[WA] Implementation 1:</summary>
+Didn't understand the question properly. I was plainly finding the minimum of max distance. However, I missed a small detail, that, I had to find this distance, remove one of the points, from the set of points.
+
+````java
+class Solution {
+    public int minimumDistance(int[][] points) {
+        // return xyz(points);
+        int min=Integer.MAX_VALUE;
+        for(int i=0;i<points.length;i++){
+            int max=0;boolean flag=false;
+            for(int j=0;j<points.length;j++){
+                flag=true;
+                max=Math.max(max, distance(points[i],points[j]));
+            }
+            if(flag)
+                min=Math.min(min, max);
+        }        
+        return min;
+    }
+    int xyz(int points[][]){
+        for(int i=0;i<points.length;i++){
+            for(int j=i+1;j<points.length;j++){
+                System.out.println(Arrays.toString(points[i])+"-->"+Arrays.toString(points[j])+" : "+distance(points[i],points[j]));
+            }
+            System.out.println();
+        }        
+        return 0;
+    }
+    int distance(int arr1[], int arr2[]){
+        return Math.abs(arr1[0]-arr2[0])+Math.abs(arr1[1]-arr2[1]);
+    }
+}
+````
+
+</details>
+<details>
+<summary>[TLE] Implementation 2:</summary>
+Corrected, the previous error. Removed each point, got the max distance between two points, and saved the minimum from those points.
+
+````java
+class Solution {
+    public int minimumDistance(int[][] points) {
+        // xyz(points);
+        return method3(points);
+    }
+    int method2(int points[][]){
+        Arrays.sort(points, (a,b)->b[0]-a[0]);
+        for(int i[]:points){
+            System.out.println(Arrays.toString(i));
+        }
+        Arrays.sort(points, (a,b)->b[1]-a[1]);
+        System.out.println();
+        for(int i[]:points){
+            System.out.println(Arrays.toString(i));
+        }
+        return 0;
+    }
+    int method1(int points[][]){
+        int min=Integer.MAX_VALUE;
+        for(int i=0;i<points.length;i++){
+            int max=0;boolean flag=false;int sum=0;
+            for(int j=0;j<points.length;j++){
+                if(i==j)continue;
+                flag=true;
+                sum+=distance(points[i],points[j]);
+                System.out.println(Arrays.toString(points[i])+"-->"+Arrays.toString(points[j])+" : "+distance(points[i],points[j]));
+                max=Math.max(max, distance(points[i],points[j]));
+            }
+            System.out.println(max+" "+sum);
+            if(flag)
+                min=Math.min(min, max);
+        }
+        return min;
+    }
+    int method3(int points[][]){
+        int min=Integer.MAX_VALUE;
+        for(int i=0;i<points.length;i++){
+            int max=distancesum(points,i);
+            min=Math.min(max,min);
+            // System.out.println(Arrays.toString(points[i])+": "+max);
+        }
+        return min;
+    }
+    int distancesum(int points[][], int x){
+        int sum = 0, max=0;
+        for (int i = 0; i < points.length; i++){
+            if(i==x)continue;
+            for (int j = i + 1; j < points.length; j++){
+                if(j==x)continue;
+                int temp= (Math.abs(points[i][0] - points[j][0])
+                        + Math.abs(points[i][1] - points[j][1]));
+                max=Math.max(temp,max);
+                sum += temp;
+            }
+        }
+        return max;
+    }
+    int xyz(int points[][]){
+        for(int i=0;i<points.length;i++){
+            for(int j=i+1;j<points.length;j++){
+                System.out.println(Arrays.toString(points[i])+"-->"+Arrays.toString(points[j])+" : "+distance(points[i],points[j]));
+            }
+            System.out.println();
+        }
+        return 0;
+    }
+    int distance(int arr1[], int arr2[]){
+        return Math.abs(arr1[0]-arr2[0])+Math.abs(arr1[1]-arr2[1]);
+    }
+}
+````
+
+</details>
+<details>
+<summary>[TLE] Implementation 3:</summary>
+Used priority queue, to optimize.
+
+````java
+class Solution {
+    public int minimumDistance(int[][] points) {
+        PriorityQueue<Integer> pq=new PriorityQueue<Integer>((a,b)->b-a);
+        for(int i=0;i<points.length;i++){
+            for(int j=i+1;j<points.length;j++){
+                pq.add(distance(points[i], points[j]));
+            }
+        }
+        int min=Integer.MAX_VALUE;
+        for(int removeIndex=0; removeIndex<points.length; removeIndex++) {
+            HashMap<Integer,Integer> hs=new HashMap<Integer,Integer>();
+            PriorityQueue<Integer> p=new PriorityQueue<Integer>(pq);
+            for(int i=0;i<points.length;i++){
+                if(i==removeIndex)continue;
+                int temp=distance(points[removeIndex], points[i]);
+                hs.put(temp,hs.getOrDefault(temp,0)+1);
+            }
+            int temp=p.peek();
+            // System.out.println(p);
+            // System.out.println(hs);
+            while(hs.containsKey(temp)){
+                // System.out.println("-- "+temp);
+                hs.put(temp,hs.get(temp)-1);
+                if(hs.get(temp)==0){
+                    hs.remove(temp);
+                }
+                p.poll();
+                temp=p.peek();
+                // System.out.println("--> "+temp);
+            }
+            // System.out.println(p);
+            // System.out.println(hs);
+            min=Math.min(min,p.peek());
+            // System.out.println();
+        }
+        return min;
+    }
+    int distance(int arr1[], int arr2[]) {
+        return Math.abs(arr1[0]-arr2[0])+Math.abs(arr1[1]-arr2[1]);
+    }
+}
+````
+</details>
+<details>
+<summary>[WA] Implementation 4:</summary>
+Finally, checked out the code of some people, who have solved it, to look where, I am going wrong. Turns out, there was a massive hole, in my understanding! There is a trick to find the max manhattan distance, between two points, which takes o(n) time. Its easily available on the internet. Did a very bad implementation, which eventually caught up in a wrong answer. The imlementation, was so complex, eventuall, I did a fresh implementation and ditched debugging it.
+
+````java
+class Solution {
+    int points[][];
+    public int minimumDistance(int[][] pppp) {
+        points=pppp;
+        int minSum[]=new int[2];
+        int maxSum[]=new int[2];
+        int maxDiff[]=new int[2];
+        int minDiff[]=new int[2];
+        Arrays.fill(minSum,Integer.MAX_VALUE);
+        Arrays.fill(minDiff,Integer.MAX_VALUE);
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int sum=x+y;
+            int diff=x-y;
+            if(minSum[0]>sum){
+                update(minSum,sum,i);
+            }
+            if(maxSum[0]<sum){
+                update(maxSum,sum,i);
+            }
+            if(maxDiff[0]<diff){
+                update(maxDiff,diff,i);
+            }
+            if(minDiff[0]>diff){
+                update(minDiff,diff,i);
+            }
+        }
+        int[] maxManhattanDistance=max(diff(maxSum,minSum), diff(maxDiff,minDiff));
+        // System.out.println(Arrays.toString(points[maxManhattanDistance[0]])+" "+Arrays.toString(points[maxManhattanDistance[1]]));
+        return Math.min(MaxDist(points,maxManhattanDistance[0]), MaxDist(points, maxManhattanDistance[1]));
+    }
+    static int MaxDist(int[][] A, int x)
+    {
+        int N=A.length;
+        // Variables to track running extrema
+        int minsum=Integer.MAX_VALUE, 
+        maxsum=Integer.MIN_VALUE, 
+        mindiff=Integer.MAX_VALUE, 
+        maxdiff=Integer.MIN_VALUE;
+ 
+        for (int i = 0; i < N; i++) {
+            if(i==x)continue;
+            int sum = A[i][0] + A[i][1];
+            int diff = A[i][0] - A[i][1];
+            if (sum < minsum)
+                minsum = sum;
+            else if (sum > maxsum)
+                maxsum = sum;
+            if (diff < mindiff)
+                mindiff = diff;
+            else if (diff > maxdiff)
+                maxdiff = diff;
+        }
+ 
+        int maximum
+            = Math.max(maxsum - minsum, maxdiff - mindiff);
+ 
+        return maximum;
+    }
+    int[] diff(int arr1[], int arr2[]){
+        int arr[]=new int[3];
+        arr[0]=arr1[1];
+        arr[1]=arr2[1];
+        arr[2]=arr1[0]-arr2[0];
+        return arr;
+    }
+    int[] max(int[] a,int[] b){
+        int arr[]=new int[2];
+        if(a[0]>b[0]){
+            arr[0]=a[0];
+            arr[1]=a[1];
+        }
+        else{
+            arr[0]=b[0];
+            arr[1]=b[1];
+        }
+        return arr;
+    }
+    void update(int arr[], int sum, int index){
+        arr[0]=sum;
+        arr[1]=index;
+    }
+}
+````
+</details>
+<details>
+<summary>[TLE] Honerable Mention</summary>
+This optimized code, for readability, eventually lead me to solution. 
+
+````java
+class Solution {
+    int points[][];
+    public int minimumDistance(int[][] pppp) {
+        points=pppp;
+        int minSum=getMinSum();
+        int maxSum=getMaxSum();
+        int minDiff=getMinDiff();
+        int maxDiff=getMaxDiff();
+        ArrayList<Integer> indexOfPoints=new ArrayList<Integer>();
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int sum=x+y;
+            int diff=x-y;
+            if(condition(sum, diff, minSum, maxSum, minDiff, maxDiff)){
+                indexOfPoints.add(i);
+            }
+        }
+        int min=Integer.MAX_VALUE;
+        for(int i:indexOfPoints){
+            int max=distancesum(i);
+            min=Math.min(max,min);
+        }
+        return min;
+    }
+    int distancesum(int x){
+        int sum = 0, max=0;
+        for (int i = 0; i < points.length; i++){
+            if(i==x)continue;
+            for (int j = i + 1; j < points.length; j++){     
+                if(j==x)continue;     
+                int temp= (Math.abs(points[i][0] - points[j][0])
+                        + Math.abs(points[i][1] - points[j][1]));
+                max=Math.max(temp,max);
+                sum += temp;
+            }
+        }
+        return max;
+    }
+    boolean condition(int sum, int diff, int minSum, int maxSum, int minDiff, int maxDiff){
+        if(minSum==sum){
+            return true;
+        }
+        if(maxSum==sum){
+            return true;
+        }
+        if(maxDiff==diff){
+            return true;
+        }
+        if(minDiff==diff){
+            return true;
+        }
+        return false;
+    }
+    int getMinSum(){
+        int ans=Integer.MAX_VALUE;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int sum=x+y;
+            if(ans>sum){
+                ans=sum;
+            }
+        }
+        return ans;
+    }
+    int getMaxSum(){
+        int ans=0;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int sum=x+y;
+            if(ans<sum){
+                ans=sum;
+            }
+        }
+        return ans;
+    }
+    int getMinDiff(){
+        int ans=Integer.MAX_VALUE;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int diff=x-y;
+            if(ans>diff){
+                ans=diff;
+            }
+        }
+        return ans;
+    }
+    int getMaxDiff(){
+        int ans=0;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int diff=x-y;
+            if(ans<diff){
+                ans=diff;
+            }
+        }
+        return ans;
+    }
+}
+````
+
+</details>
+<details>
+<summary>[AC] Implementation</summary>
+There were some more implementation, which were kind of experiments, which I didn't want to mention.
+
+````java
+class Solution {
+    int points[][];
+    public int minimumDistance(int[][] pppp) {
+        points=pppp;
+        int minSum=getMinSum();
+        int maxSum=getMaxSum();
+        int minDiff=getMinDiff();
+        int maxDiff=getMaxDiff();
+        ArrayList<Integer> indexOfPoints=new ArrayList<Integer>();
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int sum=x+y;
+            int diff=x-y;
+            if(condition(sum, diff, minSum, maxSum, minDiff, maxDiff)){
+                indexOfPoints.add(i);
+            }
+        }
+        int min=Integer.MAX_VALUE;
+
+        for(int i:indexOfPoints){
+            int temp=maxDist(i);
+            // System.out.println(Arrays.toString(points[i])+" "+temp);
+            min=Math.min(min, maxDist(i));
+        }
+
+        // for(int i:indexOfPoints){
+        //     int A[][]=new int[points.length-1][2];
+        //     int c=0;
+        //     for(int x=0;x<points.length;x++){
+        //         if(x==i)continue;
+        //         A[c][0]=points[x][0];
+        //         A[c][1]=points[x][1];
+        //         ++c;
+        //     }
+        //     min=Math.min(min, maxDist(A));
+        // }
+
+        return min;
+    }
+    int maxDist(int A[][]){
+        int N=A.length;
+
+        // int minsum, maxsum, mindiff, maxdiff;
+        // minsum = maxsum = A[0][0] + A[0][1];
+        // mindiff = maxdiff = A[0][0] - A[0][1];
+
+        int minsum=Integer.MAX_VALUE;
+        int maxsum=Integer.MIN_VALUE;
+        int mindiff=Integer.MAX_VALUE;
+        int maxdiff=Integer.MIN_VALUE;
+        // System.out.println(Arrays.deepToString(A));
+        for (int i = 0; i < N; i++) {
+            int sum = A[i][0] + A[i][1];
+            int diff = A[i][0] - A[i][1];
+            if (sum < minsum)
+                minsum = sum;
+            if (sum > maxsum)
+                maxsum = sum;
+            if (diff < mindiff)
+                mindiff = diff;
+            if (diff > maxdiff)
+                maxdiff = diff;
+            // System.out.println(maxsum+" "+maxdiff+" "+minsum+" "+mindiff);
+        }
+        // System.out.println();
+        int maximum
+                = Math.max(maxsum - minsum, maxdiff - mindiff);
+
+        return maximum;
+    }
+    int maxDist(int x){
+        int A[][]=points;
+        int N=A.length;
+
+        int minsum=Integer.MAX_VALUE;
+        int maxsum=Integer.MIN_VALUE;
+        int mindiff=Integer.MAX_VALUE;
+        int maxdiff=Integer.MIN_VALUE;
+
+        for (int i = 0; i < N; i++) {
+            if(i==x)continue;
+            int sum = A[i][0] + A[i][1];
+            int diff = A[i][0] - A[i][1];
+            if (sum < minsum)
+                minsum = sum;
+            if (sum > maxsum)
+                maxsum = sum;
+            if (diff < mindiff)
+                mindiff = diff;
+            if (diff > maxdiff)
+                maxdiff = diff;
+        }
+
+        int maximum
+                = Math.max(maxsum - minsum, maxdiff - mindiff);
+
+        return maximum;
+    }
+    boolean condition(int sum, int diff, int minSum, int maxSum, int minDiff, int maxDiff){
+        if(minSum==sum){
+            return true;
+        }
+        if(maxSum==sum){
+            return true;
+        }
+        if(maxDiff==diff){
+            return true;
+        }
+        if(minDiff==diff){
+            return true;
+        }
+        return false;
+    }
+    int getMinSum(){
+        int ans=Integer.MAX_VALUE;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int sum=x+y;
+            if(ans>sum){
+                ans=sum;
+            }
+        }
+        return ans;
+    }
+    int getMaxSum(){
+        int ans=0;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int sum=x+y;
+            if(ans<sum){
+                ans=sum;
+            }
+        }
+        return ans;
+    }
+    int getMinDiff(){
+        int ans=Integer.MAX_VALUE;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int diff=x-y;
+            if(ans>diff){
+                ans=diff;
+            }
+        }
+        return ans;
+    }
+    int getMaxDiff(){
+        int ans=0;
+        for(int i=0;i<points.length;i++){
+            int x=points[i][0];
+            int y=points[i][1];
+            int diff=x-y;
+            if(ans<diff){
+                ans=diff;
+            }
+        }
+        return ans;
+    }
+}
+````
+
+</details>
