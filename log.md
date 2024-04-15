@@ -7044,3 +7044,7 @@ class Solution {
 ````
 if you observe closely, you can find the highest prime index, when you traverse from the right, and when you arrive at that, break the loop. Vice Versa for the prime at the smallest index. To find the prime, there is a pretty kickass efficient gcd algorithm which has a logarithmic time complexity! it can be easily used here and manage almost the same level of tc, since, each no. is capped at 100 itself.
 </details>
+
+### Day 15: April 16, 2024
+ 
+Took a day off, to chill, would count Day 15, again, tomorrow.
