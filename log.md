@@ -6860,3 +6860,187 @@ class Solution {
 ````
 
 </details>
+
+### Day 14: April 15, 2024
+**Progress:**
+Gave a Leetcode contest [Weekly Contest 393], well, better than previous contest, was able to solve 2 problems, however couldn't solve the rest. Will, upsolve it, later this week.
+
+**Thoughts:**
+Details about the solved problems are:
+<details>
+<summary><a href="https://leetcode.com/problems/latest-time-you-can-obtain-after-replacing-characters/description/">Latest Time You Can Obtain After Replacing Characters</a></summary>
+Well, it was a simple problem, was a bit tricky to implement. Looking at the constraints, and getting excited about the harder problems, I just wanted to solved it, and looking at the constraints, was pretty sure, an little optimized brute force solution will pass. and it did! because, more than running the program, i have only 1.5 hrs. to solve 4 questions, therefore, I have to invest as minimal time as possible on these easy problems <br>
+My contest implementation:
+
+````java
+class Solution {
+    public String findLatestTime(String s) {
+        int c=0;
+        HashMap<String,Integer> hm;
+        hm=new HashMap<String,Integer>();
+        for(int i=0;i<12;i++){
+            for(int j=0;j<=59;j++){
+                String hours="";
+                String minutes="";
+                if(i<10){
+                    hours="0"+i;
+                }
+                else{
+                    hours=i+"";
+                }
+                if(j<10){
+                    minutes="0"+j;
+                }
+                else{
+                    minutes=j+"";
+                }
+                String temp=hours+":"+minutes;
+                hm.put(temp,c++);
+            }
+        }
+        String answer="";
+        int maxScore=-1;
+        for(int i=0;i<12;i++){
+            for(int j=0;j<=59;j++){
+                String hours="";
+                String minutes="";
+                if(i<10){
+                    hours="0"+i;
+                }
+                else{
+                    hours=i+"";
+                }
+                if(j<10){
+                    minutes="0"+j;
+                }
+                else{
+                    minutes=j+"";
+                }
+                String temp=hours+":"+minutes;
+                if(match(s,temp)){
+                    int score=hm.get(temp);
+                    if(maxScore<score){
+                        score=maxScore;
+                        answer=temp;
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+    boolean match(String hours, String temp){
+        for(int i=0;i<hours.length();i++){
+            if(hours.charAt(i)=='?')continue;
+            if(hours.charAt(i)==temp.charAt(i))continue;
+            // System.out.println(hours+" "+temp+" "+i+" "+hours.charAt(i)+" "+temp.charAt(i));
+            return false;
+        }
+        // System.out.println(hours+" "+temp);
+        return true;
+    }
+}
+````
+After contest, a more optimized decent implementation:
+
+````java
+class Solution {
+    public String findLatestTime(String s) {
+        for(int i=11;i>=0;i--){
+            for(int j=59;j>=0;j--){
+                String hours=i+"";
+                String minutes=j+"";
+                if(i<10){
+                    hours="0"+hours;
+                }
+                if(j<10){
+                    minutes="0"+minutes;
+                }
+                String temp=hours+":"+minutes;
+                if(match(s,temp)){
+                    return temp;
+                }
+            }
+        }
+        return "";
+    }
+    boolean match(String hours, String temp){
+        for(int i=0;i<hours.length();i++){
+            if(hours.charAt(i)=='?')continue;
+            if(hours.charAt(i)==temp.charAt(i))continue;
+            // System.out.println(hours+" "+temp+" "+i+" "+hours.charAt(i)+" "+temp.charAt(i));
+            return false;
+        }
+        // System.out.println(hours+" "+temp);
+        return true;
+    }
+}
+````
+Not listing the other crazy experiments I did on this problem, after contest.
+</details>
+<details>
+<summary><a href="https://leetcode.com/problems/maximum-prime-difference/description/">Maximum Prime Difference</a></summary>
+This was also an easy problem, I found it easier than the above problem. I have to identify the primes in the array and substract the index. How to find the primes? Well, either I can, calculate every no. to find if they are prime or not, or create a sieve, and then found out, the nos. have a limit till 100 however, the array of nos. is huge, so figured, why not store the prime nos. until 100 and proceed!<br>
+My Contest Implementation:
+
+````java
+class Solution {
+    public int maximumPrimeDifference(int[] nums) {
+        HashSet<Integer> primeSieve=new HashSet<Integer>();
+        int arr[]={2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97};
+        for(int i:arr){
+            primeSieve.add(i);
+        }
+        int highest=0, lowest=0;
+        for(int i=0;i<nums.length;i++){
+            if(primeSieve.contains(nums[i])){
+                highest=i;
+            }
+        }
+        for(int i=nums.length-1;i>=0;i--){
+            if(primeSieve.contains(nums[i])){
+                lowest=i;
+            }
+        }
+        return highest-lowest;
+    }
+}
+````
+After contest implementation, where I am generating the prime nos. in somthing called Sieve method.
+
+````java
+class Solution {
+    HashSet<Integer> primeSieve;
+    public int maximumPrimeDifference(int[] nums) {
+        createPrimeSieve();
+        int highest=0, lowest=0;
+        for(int i=nums.length-1;i>=0;i--){
+            if(primeSieve.contains(nums[i])){
+                highest=i;
+                break;
+            }
+        }
+        for(int i=0;i<nums.length;i++){
+            if(primeSieve.contains(nums[i])){
+                lowest=i;
+                break;
+            }
+        }
+        return highest-lowest;
+    }
+    void createPrimeSieve(){
+        primeSieve=new HashSet<Integer>();
+        for(int i=2;i<=100;i++){
+            primeSieve.add(i);
+        }
+        for(int i=2;i<=100;i++){
+            int c=2;
+            while(i*c<=100){
+                primeSieve.remove(i*c);
+                ++c;
+            }
+        }
+    }
+}
+````
+if you observe closely, you can find the highest prime index, when you traverse from the right, and when you arrive at that, break the loop. Vice Versa for the prime at the smallest index. To find the prime, there is a pretty kickass efficient gcd algorithm which has a logarithmic time complexity! it can be easily used here and manage almost the same level of tc, since, each no. is capped at 100 itself.
+</details>
