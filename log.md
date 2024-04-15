@@ -7047,4 +7047,4 @@ if you observe closely, you can find the highest prime index, when you traverse 
 
 ### Day 15: April 16, 2024
  
-Took a day off, to chill, would count Day 15, again, tomorrow.
+Took a day off, to chill, would count Day 15, again, tomorrow. However, as the rules state, won't extend this, for more than a consecutive day
