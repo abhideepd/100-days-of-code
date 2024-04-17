@@ -7048,3 +7048,95 @@ if you observe closely, you can find the highest prime index, when you traverse 
 ### Day 15: April 16, 2024
  
 Took a day off, to chill, would count Day 15, again, tomorrow. However, as the rules state, won't extend this, for more than a consecutive day
+
+### Day 15: April 17, 2024
+
+**Progress**: 
+Trying to upsolve the contest problem. Wasn't able to solve 2 problems. Currently, trying to solve this problem [Kth Smallest Amount With Single Denomination Combination](https://leetcode.com/problems/kth-smallest-amount-with-single-denomination-combination/description/), the question, is very easy to understand, however, can't figure out, the edge cases, getting stuck in some test cases all the time. Still haven't seen the editorial, since I have some more ideas left, and until, I am out of ideas, I will continue to try.
+
+Some of the implementations, are below (well, all of them are WA :-( )
+<details>
+<summary>Impementation 1</summary>
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        if(coins[0]==1){
+            return k;
+        }
+        else{
+            
+        }
+        long kValue=coins[0]*k;
+        // find all the unique contributions
+        ArrayList<Long> uniqueContributions=new ArrayList<Long>();
+        for(int i=1;i<coins.length;i++){
+            long d=kValue/coins[i];
+            for(int j=1;j<=d;j++){
+                long val=coins[i]*j;
+                boolean uniqueFlag=true;
+                for(int c=0;c<i;c++){
+                    if(val%coins[c]==0){
+                        uniqueFlag=false;
+                        break;
+                    }
+                }
+                if(uniqueFlag){
+                    uniqueContributions.add(val);
+                }
+            }
+        }
+        Collections.sort(uniqueContributions);
+        for(long i:uniqueContributions){
+            if(kValue<=i){
+                break;
+            }
+            kValue=coins[0]*--k;
+        }
+        return kValue;
+    }
+}
+````
+
+</details>
+<details>
+<summary>Impementation 2</summary>
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        if(coins[0]==1){
+            return k;
+        }
+        else{
+
+        }
+        int kValue=coins[0]*k;
+        for(int i=1;i<coins.length;i++){
+            int d=kValue/coins[i];
+            while(d>0){
+                int val=coins[i]*d;
+                boolean flag= true;
+                for(int j=0;j<i;j++){
+                    int c=coins[j];
+                    if(val%c==0){
+                        --d;
+                        flag=false;
+                        break;
+                    }
+                }
+                if(flag){
+                    int temp1=coins[0]*--k;
+                    int temp2=coins[1]*d;
+                    kValue=Math.max(temp1,temp2);
+                    break;
+                }
+            }
+        }
+        return kValue;
+    }
+}
+````
+</details>
