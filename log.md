@@ -7140,3 +7140,89 @@ class Solution {
 }
 ````
 </details>
+
+### Day 16: April 17, 2024
+
+**Progress**:
+Solved one of them, [Minimum Sum of Values by Dividing Array](https://leetcode.com/problems/minimum-sum-of-values-by-dividing-array/), was not that hard, solved within an hour, without even watching the editorial. This makes me sad, as, why wasn't I able to come up with the solution, in the contest.... Listing down the implementations, which led me to the solution
+
+<details>
+<summary>Brute Force [TLE]</summary>
+Well, I knew, it would TLE, wanted to establish the recurrence relation, if its successfully, we just to memoize it, so that states are not visited to do the calculation again, instead, they can be cached. <br>
+
+````java
+class Solution {
+    int nums[], andValues[];
+    int MAX_VALUE=2*1000000;
+    public int minimumValueSum(int[] n, int[] a) {
+        nums=n; andValues=a;
+        int ans=xyz(0,0,Integer.MAX_VALUE);
+        if(ans==MAX_VALUE){
+            return -1;
+        }
+        return ans;
+    }
+    int xyz(int numsIndex, int andValuesIndex, int currVal){
+        if(numsIndex==nums.length && andValuesIndex==andValues.length){
+            return 0;
+        }
+        else if(numsIndex==nums.length || andValuesIndex==andValues.length){
+            return MAX_VALUE;
+        }
+        // System.out.println("(currVal:"+currVal+") & (nums:"+nums[numsIndex]+"): "+(currVal&nums[numsIndex])+" "+" andValuesIndex:"+andValuesIndex);
+        if((currVal&nums[numsIndex])==andValues[andValuesIndex]){
+            // System.out.println("--> (currVal:"+currVal+") & (nums:"+nums[numsIndex]+") : "+(currVal&nums[numsIndex])+" "+andValuesIndex);
+            return Math.min(nums[numsIndex]+xyz(numsIndex+1,andValuesIndex+1,Integer.MAX_VALUE), xyz(numsIndex+1, andValuesIndex,(currVal&nums[numsIndex])));
+        }
+        else{
+            return xyz(numsIndex+1, andValuesIndex,(currVal&nums[numsIndex]));
+        }
+    }
+}
+````
+</details>
+<details>
+<summary>[AC] Correct!</summary>
+Well, memoised the above, found the variables, which were controlling the states, and memoised it and voila!
+
+````java
+class Solution {
+    int nums[], andValues[]; 
+    HashMap<Integer, Integer> dpp[][];
+    int MAX_VALUE=2*1000000;
+    public int minimumValueSum(int[] n, int[] a) {
+        nums=n; andValues=a;
+        dpp=new HashMap[andValues.length][nums.length];
+        for(int i=0;i<andValues.length;i++){
+            for(int j=0;j<nums.length;j++){
+                dpp[i][j]=new HashMap<Integer,Integer>();
+            }
+        }
+        int ans=xyz2(0,0,Integer.MAX_VALUE);
+        if(ans==MAX_VALUE){
+            return -1;
+        }
+        return ans;
+    }
+    int xyz2(int numsIndex, int andValuesIndex, int currVal){
+        if(numsIndex==nums.length && andValuesIndex==andValues.length){
+            return 0;
+        }
+        else if(numsIndex==nums.length || andValuesIndex==andValues.length){
+            return MAX_VALUE;
+        }
+        if(dpp[andValuesIndex][numsIndex].containsKey(currVal)){
+            return dpp[andValuesIndex][numsIndex].get(currVal);
+        }
+        if((currVal&nums[numsIndex])==andValues[andValuesIndex]){
+            dpp[andValuesIndex][numsIndex].put(currVal, Math.min(nums[numsIndex]+xyz2(numsIndex+1,andValuesIndex+1,Integer.MAX_VALUE), xyz2(numsIndex+1, andValuesIndex,(currVal&nums[numsIndex]))));
+        }        
+        else{
+            dpp[andValuesIndex][numsIndex].put(currVal, xyz2(numsIndex+1, andValuesIndex,(currVal&nums[numsIndex])));
+        }
+        return dpp[andValuesIndex][numsIndex].get(currVal);
+    }
+}
+````
+
+</details>
