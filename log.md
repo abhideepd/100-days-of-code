@@ -7141,7 +7141,7 @@ class Solution {
 ````
 </details>
 
-### Day 16: April 17, 2024
+### Day 16: April 18, 2024
 
 **Progress**:
 Solved one of them, [Minimum Sum of Values by Dividing Array](https://leetcode.com/problems/minimum-sum-of-values-by-dividing-array/), was not that hard, solved within an hour, without even watching the editorial. This makes me sad, as, why wasn't I able to come up with the solution, in the contest.... Listing down the implementations, which led me to the solution
@@ -7221,6 +7221,206 @@ class Solution {
             dpp[andValuesIndex][numsIndex].put(currVal, xyz2(numsIndex+1, andValuesIndex,(currVal&nums[numsIndex])));
         }
         return dpp[andValuesIndex][numsIndex].get(currVal);
+    }
+}
+````
+
+</details>
+
+### Day 17: April 19, 2024
+
+**Progress**:
+Came close to solving the second problem, [Kth Smallest Amount With Single Denomination Combination](https://leetcode.com/problems/kth-smallest-amount-with-single-denomination-combination/description/). Finally, found out a brute force solution and have gotten some hint, as to where the solution might be.... In the bruteforce method, I am considering all the nos. not unique in the set of coin denominations and storing them in the array. As the lowest coin, will have its kth value by default, insertion of the lowest value from the unique set, will result to decrease in the kth value, which is the last value of the above array and also add k-th value from the smallest coin. We have to do this, until, l<r. Well, the explanation, might be vague, I promise, the code, will be easier to understand. The storing in the array, sorting it, then adding it, and linearly finding it, seems to be a tedious operation. I think, apart from storing, we can do something about the sorting and the traversal, which can be cut down from liner to binary search (log n), lets see, will give it a try again!!! So excited!! My experiments are below:
+
+<details>
+<summary>[WA] implementation 1</summary>
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        if(coins[0]==1){
+            return k;
+        }
+        else{
+
+        }
+        int kValue=coins[0]*k;
+        for(int i=1;i<coins.length;i++){
+            int d=kValue/coins[i];
+            while(d>0){
+                int val=coins[i]*d;
+                boolean flag= true;
+                for(int j=0;j<i;j++){
+                    int c=coins[j];
+                    if(val%c==0){
+                        --d;
+                        flag=false;
+                        break;
+                    }
+                }
+                if(flag){
+                    int temp1=coins[0]*--k;
+                    int temp2=coins[1]*d;
+                    kValue=Math.max(temp1,temp2);
+                    break;
+                }
+            }
+        }
+        return kValue;
+    }
+}
+````
+
+</details>
+<details>
+<summary>[WA] implementation 2</summary>
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        if(coins[0]==1){
+            return k;
+        }
+        else{
+            
+        }
+        long kValue=coins[0]*k;
+        // find all the unique contributions
+        ArrayList<Long> uniqueContributions=new ArrayList<Long>();
+        for(int i=1;i<coins.length;i++){
+            long d=kValue/coins[i];
+            for(int j=1;j<=d;j++){
+                long val=coins[i]*j;
+                boolean uniqueFlag=true;
+                for(int c=0;c<i;c++){
+                    if(val%coins[c]==0){
+                        uniqueFlag=false;
+                        break;
+                    }
+                }
+                if(uniqueFlag){
+                    uniqueContributions.add(val);
+                }
+            }
+        }
+        Collections.sort(uniqueContributions);
+        for(long i:uniqueContributions){
+            if(kValue<=i){
+                break;
+            }
+            kValue=coins[0]*--k;
+        }
+        return kValue;
+    }
+}
+````
+
+</details>
+<details>
+<summary>[WA] implementation 3</summary>
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        long kValue=coins[0]*k;
+        // find all the unique contributions
+        ArrayList<Long> uniqueContributions=new ArrayList<Long>();
+        for(int i=1;i<coins.length;i++){
+            long d=kValue/coins[i];
+            for(int j=1;j<=d;j++){
+                long val=coins[i]*j;
+                boolean uniqueFlag=true;
+                for(int c=0;c<i;c++){
+                    if(val%coins[c]==0){
+                        uniqueFlag=false;
+                        break;
+                    }
+                }
+                if(uniqueFlag){
+                    uniqueContributions.add(val);
+                }
+            }
+        }
+        if(uniqueContributions.size()==0){
+            return coins[0]*k;
+        }
+        uniqueContributions.add((long)coins[0]*k);
+        int insertElement=0, kthValue=uniqueContributions.size();
+        // System.out.println(kthValue);
+        while(insertElement<kthValue){
+            // System.out.println(insertElement+" "+kthValue);
+            // System.out.print(uniqueContributions);
+            uniqueContributions.add((long)coins[0]*--k);
+            --k;
+            Collections.sort(uniqueContributions);
+            ++insertElement;
+            --kthValue;
+            // System.out.println(" --> "+uniqueContributions);
+        }
+        // System.out.println(kthValue);
+        return uniqueContributions.get(kthValue);
+    }
+}
+````
+
+</details>
+<details>
+<summary>[TLE] Proper Bruteforce Solution</summary>
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        long kValue=coins[0]*k;
+        // find all the unique contributions
+        ArrayList<Long> uniqueContributions=new ArrayList<Long>();
+        for(int i=1;i<coins.length;i++){
+            long d=kValue/coins[i];
+            for(int j=1;j<=d;j++){
+                long val=coins[i]*j;
+                boolean uniqueFlag=true;
+                for(int c=0;c<i;c++){
+                    if(val%coins[c]==0){
+                        uniqueFlag=false;
+                        break;
+                    }
+                }
+                if(uniqueFlag){
+                    uniqueContributions.add(val);
+                }
+            }
+        }
+        if(uniqueContributions.size()==0){
+            return coins[0]*k;
+        }
+        uniqueContributions.add((long)coins[0]*k);
+        Collections.sort(uniqueContributions);
+        int insertElement=0, kthValue=uniqueContributions.size()-1;
+        while(insertElement<kthValue){
+            long val=(long)coins[0]*--k;
+            // System.out.print(uniqueContributions);
+            if(insert(uniqueContributions, val, insertElement, kthValue)){
+                ++insertElement;
+            }
+            else{
+                // ++insertElement;
+                --kthValue;
+            }
+            // System.out.println(" --> "+uniqueContributions);
+        }
+        return uniqueContributions.get(kthValue);
+    }
+    boolean insert(ArrayList<Long> arr, long val, int l, int r){
+        // System.out.println(arr.get(l)+" "+val+" "+arr.get(r));
+        if(arr.get(l)<val && val<arr.get(r)){
+            arr.add(val);
+            Collections.sort(arr);
+            return true;
+        }
+        return false;
     }
 }
 ````
