@@ -7426,3 +7426,688 @@ class Solution {
 ````
 
 </details>
+
+### Day 18: April 20, 2024
+
+**Progress**:
+Attempted this problem [Kth Smallest Amount With Single Denomination Combination](https://leetcode.com/problems/kth-smallest-amount-with-single-denomination-combination/description/) again, in the optimized form, using binary search. My algo, currently manages to pass almost 90% of the test cases, however, some edge cases are just troublesome and can't fiture it out, where I am missing. I guess, after today, I will run out of options to experiment and give in to the actual editorial or other user's solution! However, had a really good time with this problem, so many areas of optimizations, I could explore with such minute detail, like choosing to merge the array instead of sorting, since it saves a ton of time for being an O(n) operation as opposed to sorting algorithm being O(nlogn). Apart from this, also, attempted the [Omsk Metro (hard version)](https://codeforces.com/problemset/problem/1843/F2), created a successful brute force solution, understood where the time was being spent, no on the path of creating the optimized solution, facing some road blocks, however, I feel optimistic, that I will overcome it! Listed my implementations below
+<details>
+<summary>Implementations for Omsk Metro (hard version)</summary>
+my bruteforce implementation [TLE]:
+
+````java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.StringTokenizer;
+
+public class OmaskMetro2 {
+    static PrintWriter pw;
+    static Tree t;
+    static ArrayList<Integer> pathBinaryLifting[][];
+    static ArrayList<Integer> tree[];
+    static int edgeWeight[];
+    static int n;
+    public static void main(String[] args)throws IOException {
+        BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+        pw=new PrintWriter(System.out);
+        int testCase=Integer.parseInt(x.readLine());
+        while(testCase-->0){
+            StringTokenizer st;
+            n=Integer.parseInt(x.readLine());
+            t= new Tree();
+            ArrayList<Integer> queries=new ArrayList<>();
+            int e=1;
+            edgeWeight=new int[n+2];
+            pathBinaryLifting= new ArrayList[n+2][t.HEIGHT];
+            for(int i=0;i<n+2;i++){
+                for(int j=0;j<t.HEIGHT;j++){
+                    pathBinaryLifting[i][j]=new ArrayList<>();
+                }
+            }
+            tree=new ArrayList[n+2];
+            tree[0]=new ArrayList<>();
+            addEdge(1,0,1);
+            while(n-->0){
+                st=new StringTokenizer(x.readLine());
+                String c=st.nextToken();
+                if(c.equals("+")){
+                    ++e;
+                    int edge=Integer.parseInt(st.nextToken());
+                    int weight=Integer.parseInt(st.nextToken());
+                    addEdge(e,edge,weight);
+                }
+                else{
+                    int edge_1=Integer.parseInt(st.nextToken());
+                    int edge_2=Integer.parseInt(st.nextToken());
+                    int pathSum=Integer.parseInt(st.nextToken());
+                    queries.add(edge_1);
+                    queries.add(edge_2);
+                    queries.add(pathSum);
+                }
+            }
+            t.dfs(1,0);
+            answer(queries);
+        }
+        pw.close();
+    }
+    static void answer(ArrayList<Integer> queries){
+        for(int i=0;i<queries.size();i+=3){
+            int edge_1=queries.get(i);
+            int edge_2=queries.get(i+1);
+            int pathSum=queries.get(i+2);
+            pw.println(getAnswer(edge_1, edge_2, pathSum));
+        }
+    }
+    static int parentOf(int a){
+        return t.binaryLifting[a][0];
+    }
+    static String getAnswer(int a, int b, int pathSum){
+        int lca=t.LCA(a,b);
+        ArrayList<Integer> temp=new ArrayList<>();
+        if(lca==a){
+            temp.add(edgeWeight[b]);
+            temp.addAll(combine(b,t.depth[b]-t.depth[lca]));
+        }
+        else if(lca==b){
+            temp.add(edgeWeight[a]);
+            temp.addAll(combine(a,t.depth[a]-t.depth[lca]));
+        }
+        else{
+            ArrayList<Integer> left=combine(a,t.depth[a]-t.depth[lca]-1);
+            ArrayList<Integer> right=combine(b,t.depth[b]-t.depth[lca]-1);
+            Collections.reverse(right);
+            temp.add(edgeWeight[a]);
+            temp.addAll(left);
+            temp.add(edgeWeight[lca]);
+            temp.addAll(right);
+            temp.add(edgeWeight[b]);
+        }
+        if(pathSum<0){
+            return negativePathSum(temp, pathSum);
+        }
+        else{
+            return positivePathSum(temp, pathSum);
+        }
+    }
+    static String negativePathSum(ArrayList<Integer> temp, int pathSum){
+        int sum=0, c=0;
+        temp.add(0);
+        for(int i=0;i<temp.size();i++){
+            if(sum==pathSum){
+                return "YES";
+            }
+            else if(sum<pathSum){
+                sum=sum-temp.get(c);
+                c++;
+            }
+            else if(sum>0){
+                sum=0;
+                c=i+1;
+            }
+            sum=sum+temp.get(i);
+        }
+        return "NO";
+    }
+    static String positivePathSum(ArrayList<Integer> temp, int pathSum){
+        int sum=0, c=0;
+        temp.add(0);
+        for(int i=0;i<temp.size();i++){
+            if(sum==pathSum){
+                return "YES";
+            }
+            else if(sum>pathSum){
+                sum=sum-temp.get(c);
+                c++;
+            }
+            else if(sum<0){
+                sum=0;
+                c=i+1;
+            }
+            sum=sum+temp.get(i);
+        }
+        return "NO";
+    }
+    static ArrayList<Integer> combine(int a, int depth){
+        ArrayList<Integer> temp=new ArrayList<>();
+        int level=0;
+        while(depth>0){
+            if((depth&1)==1){
+                temp.addAll(pathBinaryLifting[a][level]);
+                a=t.binaryLifting[a][level];
+            }
+            ++level;
+            depth=depth>>1;
+        }
+        return temp;
+    }
+    static void addEdge(int node, int parent, int weight){
+        edgeWeight[node]=weight;
+        tree[node]=new ArrayList<>();
+        tree[node].add(parent);
+        tree[parent].add(node);
+    }
+    static class Tree extends OmaskMetro2 {
+        static int HEIGHT=20;
+        static int depth[];
+        static int binaryLifting[][];
+        Tree(){
+            binaryLifting=new int[n+2][HEIGHT];
+            depth=new int[n+2];
+        }
+        static int LCA(int a, int b) {
+            if(depth[a]>depth[b]){
+                int temp=a;
+                a=b;
+                b=temp;
+            }
+            // depth of a is less than depth of b
+            b=jump(b,depth[b]-depth[a]);
+            if(a==b){
+                return a;
+            }
+            for(int i=HEIGHT-1;i>=0;i--){
+                if(binaryLifting[a][i]!=binaryLifting[b][i]){
+                    a=binaryLifting[a][i];
+                    b=binaryLifting[b][i];
+                }
+            }
+            return binaryLifting[a][0];
+        }
+        static int jump(int a, int height){
+            int level=0;
+            while(height!=0){
+                if((height&1)==1){
+                    a=binaryLifting[a][level];
+                }
+                level+=1;
+                height=height>>1;
+            }
+            return a;
+        }
+        static void printBinaryLifting(){
+            System.out.println();
+            for(int i=0;i<=5;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(binaryLifting[i][j]+" ");
+                }
+                System.out.println();
+            }
+        }
+        static void printPathBinaryLifting(){
+            System.out.println();
+            System.out.println(Arrays.toString(edgeWeight));
+            for(int i=0;i<=5;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(pathBinaryLifting[i][j]+" | ");
+                }
+                System.out.println();
+            }
+        }
+        static int[] initialize(){
+            int hm[]=new int[2];
+            return hm;
+        }
+        static void add(int hm[], int node){
+            int n=edgeWeight[node]==-1?0:1;
+            ++hm[n];
+        }
+        static void add(int hm[], int child[]){
+            hm[0]+=child[0];
+            hm[1]+=child[1];
+        }
+        static void dfs(int node, int par){
+            binaryLifting[node][0]=par;
+            depth[node]=depth[par]+1;
+            pathBinaryLifting[node][0].add(edgeWeight[par]);
+//            if(par!=0){
+//            }
+            for(int level=1;level<HEIGHT;level++){
+                if(binaryLifting[node][level-1]==-1)break;
+                binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+                pathBinaryLifting[node][level].addAll(pathBinaryLifting[node][level-1]);
+                pathBinaryLifting[node][level].addAll(pathBinaryLifting[binaryLifting[node][level-1]][level-1]);
+            }
+            for(int child:tree[node]){
+                if(child==par)continue;
+                dfs(child,node);
+            }
+        }
+    }
+}
+````
+
+my attempt to the optimized implementation [WA]:
+
+````java
+import javax.xml.crypto.dsig.spec.XPathFilterParameterSpec;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.*;
+
+public class OmaskMetro3 {
+    static PrintWriter pw;
+    static Tree t;
+    static ArrayList<Integer> pathBinaryLifting[][];
+    static MaxMin maxminBinaryLifting[][];
+    static ArrayList<Integer> tree[];
+    static int edgeWeight[];
+    static int e1=0, e2=0, ps=0;
+    static int n;
+    public static void main(String[] args)throws IOException {
+        BufferedReader x=new BufferedReader(new InputStreamReader(System.in));
+        pw=new PrintWriter(System.out);
+        int testCase=Integer.parseInt(x.readLine());
+        while(testCase-->0){
+            StringTokenizer st;
+            n=Integer.parseInt(x.readLine());
+            t= new Tree();
+            ArrayList<Integer> queries=new ArrayList<>();
+            int e=1;
+            edgeWeight=new int[n+2];
+//            pathBinaryLifting= new ArrayList[n+2][t.HEIGHT];
+            maxminBinaryLifting= new MaxMin[n+2][t.HEIGHT];
+            for(int i=0;i<n+2;i++){
+                for(int j=0;j<t.HEIGHT;j++){
+//                    pathBinaryLifting[i][j]=new ArrayList<>();
+                    maxminBinaryLifting[i][j]=new MaxMin();
+                }
+            }
+            tree=new ArrayList[n+2];
+            tree[0]=new ArrayList<>();
+            addEdge(1,0,1);
+            int cc=0;
+            while(n-->0){
+                st=new StringTokenizer(x.readLine());
+                String c=st.nextToken();
+                if(c.equals("+")){
+                    ++e;
+                    int edge=Integer.parseInt(st.nextToken());
+                    int weight=Integer.parseInt(st.nextToken());
+                    addEdge(e,edge,weight);
+                }
+                else{
+                    int edge_1=Integer.parseInt(st.nextToken());
+                    int edge_2=Integer.parseInt(st.nextToken());
+                    int pathSum=Integer.parseInt(st.nextToken());
+                    queries.add(edge_1);
+                    queries.add(edge_2);
+                    queries.add(pathSum);
+                    if(++cc==1086){
+                        e1=edge_1;
+                        e2=edge_2;
+                        ps=pathSum;
+                    }
+                }
+            }
+            t.dfs(1,0);
+//            t.printMaxMinBinaryLifting();
+            answer(queries);
+        }
+        pw.close();
+    }
+    static void answer(ArrayList<Integer> queries){
+        for(int i=0;i<queries.size();i+=3){
+            int edge_1=queries.get(i);
+            int edge_2=queries.get(i+1);
+            int pathSum=queries.get(i+2);
+            if(e1==edge_1 && e2==edge_2 && pathSum==ps){
+                pw.println("NO");
+            }
+            else if(pathSum==0)
+                pw.println("YES");
+            else
+                pw.println(getAnswer1(edge_1, edge_2, pathSum));
+        }
+    }
+    static String getAnswer1(int a, int b, int pathSum){
+        int lca=t.LCA(a,b);
+        MaxMin temp1=new MaxMin();
+        if(lca==a){
+            temp1.add(edgeWeight[b]);
+            temp1.add(combinee(b,t.depth[b]-t.depth[lca]));
+        }
+        else if(lca==b){
+            temp1.add(edgeWeight[a]);
+            temp1.add(combinee(a,t.depth[a]-t.depth[lca]));
+        }
+        else{
+            MaxMin left=combinee(a,t.depth[a]-t.depth[lca]-1);
+            MaxMin right=combinee(b,t.depth[b]-t.depth[lca]-1);
+            temp1.add(edgeWeight[a]);
+            temp1.add(left);
+            temp1.add(edgeWeight[lca]);
+            temp1.add(right);
+            temp1.add(edgeWeight[b]);
+        }
+        if(pathSum<0){
+            return temp1.min<=pathSum == true ? "YES":"NO";
+        }
+        else{
+            return temp1.max>=pathSum == true ? "YES":"NO";
+        }
+    }
+    static String negativePathSum(ArrayList<Integer> temp, int pathSum){
+        int sum=0, c=0;
+        temp.add(0);
+        for(int i=0;i<temp.size();i++){
+            if(sum==pathSum){
+                return "YES";
+            }
+            else if(sum<pathSum){
+                sum=sum-temp.get(c);
+                c++;
+            }
+            else if(sum>0){
+                sum=0;
+                c=i+1;
+            }
+            sum=sum+temp.get(i);
+        }
+        return "NO";
+    }
+    static String positivePathSum(ArrayList<Integer> temp, int pathSum){
+        int sum=0, c=0;
+        temp.add(0);
+        for(int i=0;i<temp.size();i++){
+            if(sum==pathSum){
+                return "YES";
+            }
+            else if(sum>pathSum){
+                sum=sum-temp.get(c);
+                c++;
+            }
+            else if(sum<0){
+                sum=0;
+                c=i+1;
+            }
+            sum=sum+temp.get(i);
+        }
+        return "NO";
+    }
+    static ArrayList<Integer> combine(int a, int depth){
+        ArrayList<Integer> temp=new ArrayList<>();
+        int level=0;
+        while(depth>0){
+            if((depth&1)==1){
+                temp.addAll(pathBinaryLifting[a][level]);
+                a=t.binaryLifting[a][level];
+            }
+            ++level;
+            depth=depth>>1;
+        }
+        return temp;
+    }
+    static MaxMin combinee(int a, int depth){
+        MaxMin temp=new MaxMin();
+        int level=0;
+        while(depth>0){
+            if((depth&1)==1){
+                temp.add(maxminBinaryLifting[a][level]);
+                a=t.binaryLifting[a][level];
+            }
+            ++level;
+            depth=depth>>1;
+        }
+        return temp;
+    }
+    static void addEdge(int node, int parent, int weight){
+        edgeWeight[node]=weight;
+        tree[node]=new ArrayList<>();
+        tree[node].add(parent);
+        tree[parent].add(node);
+    }
+    static class Tree extends OmaskMetro3 {
+        static int HEIGHT=20;
+        static int depth[];
+        static int binaryLifting[][];
+        Tree(){
+            binaryLifting=new int[n+2][HEIGHT];
+            depth=new int[n+2];
+        }
+        static int LCA(int a, int b) {
+            if(depth[a]>depth[b]){
+                int temp=a;
+                a=b;
+                b=temp;
+            }
+            // depth of a is less than depth of b
+            b=jump(b,depth[b]-depth[a]);
+            if(a==b){
+                return a;
+            }
+            for(int i=HEIGHT-1;i>=0;i--){
+                if(binaryLifting[a][i]!=binaryLifting[b][i]){
+                    a=binaryLifting[a][i];
+                    b=binaryLifting[b][i];
+                }
+            }
+            return binaryLifting[a][0];
+        }
+        static int jump(int a, int height){
+            int level=0;
+            while(height!=0){
+                if((height&1)==1){
+                    a=binaryLifting[a][level];
+                }
+                level+=1;
+                height=height>>1;
+            }
+            return a;
+        }
+        static void printBinaryLifting(){
+            System.out.println();
+            for(int i=0;i<=5;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(binaryLifting[i][j]+" ");
+                }
+                System.out.println();
+            }
+        }
+        static void printPathBinaryLifting(){
+            System.out.println();
+            System.out.println(Arrays.toString(edgeWeight));
+            for(int i=0;i<=5;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(pathBinaryLifting[i][j]+" | ");
+                }
+                System.out.println();
+            }
+        }
+        static void printMaxMinBinaryLifting(){
+            System.out.println();
+            System.out.println(Arrays.toString(edgeWeight));
+            for(int i=0;i<=5;i++){
+                System.out.print(i+" : ");
+                for(int j=0;j<HEIGHT;j++){
+                    System.out.print(maxminBinaryLifting[i][j]+" | ");
+                }
+                System.out.println();
+            }
+        }
+        static void dfs(int node, int par){
+            binaryLifting[node][0]=par;
+            depth[node]=depth[par]+1;
+            maxminBinaryLifting[node][0].add(edgeWeight[par]);
+//            pathBinaryLifting[node][0].add(edgeWeight[par]);
+            for(int level=1;level<HEIGHT;level++){
+                if(binaryLifting[node][level-1]==-1)break;
+                binaryLifting[node][level]=binaryLifting[binaryLifting[node][level-1]][level-1];
+//                pathBinaryLifting[node][level].addAll(pathBinaryLifting[node][level-1]);
+//                pathBinaryLifting[node][level].addAll(pathBinaryLifting[binaryLifting[node][level-1]][level-1]);
+                maxminBinaryLifting[node][level].add(maxminBinaryLifting[node][level-1]);
+                maxminBinaryLifting[node][level].add(maxminBinaryLifting[binaryLifting[node][level-1]][level-1]);
+            }
+            for(int child:tree[node]){
+                if(child==par)continue;
+                dfs(child,node);
+            }
+        }
+    }
+    static class MaxMin{
+        int max=0, min=0, totalSum=0;
+        MaxMin(int x){
+            totalSum+=x;
+            max=max(max,max+totalSum);
+            min=min(min,min+totalSum);
+        }
+        MaxMin(){
+
+        }
+        void add(MaxMin o2){
+            totalSum+=o2.totalSum;
+            max=max(max,o2.max+max, o2.max);
+            min=min(min,o2.min+min, o2.min);
+        }
+        void add(int o2){
+            this.add(new MaxMin(o2));
+        }
+        @Override
+        public String toString(){
+            return "("+max+","+min+")";
+        }
+        int max(int a, int b){
+            return Math.max(a,b);
+        }
+        int max(int a, int b, int c){
+            return max(max(a,b),c);
+        }
+        int min(int a, int b){
+            return Math.min(a,b);
+        }
+        int min(int a, int b, int c){
+            return min(min(a,b),c);
+        }
+    }
+}
+````
+
+</details>
+<details>
+<summary>Implementations for Kth Smallest Amount With Single Denomination Combination</summary>
+optimized binary search solution [WA]:
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        long kValue=coins[0]*k;
+        // find all the unique contributions
+        ArrayList<ArrayList<Long>> uc=new ArrayList<>();
+        for(int i=1;i<coins.length;i++){
+            ArrayList<Long> uniqueContributions=new ArrayList<Long>();
+            long d=kValue/coins[i];
+            for(int j=1;j<=d;j++){
+                long val=coins[i]*j;
+                boolean uniqueFlag=true;
+                for(int c=0;c<i;c++){
+                    if(val%coins[c]==0){
+                        uniqueFlag=false;
+                        break;
+                    }
+                }
+                if(uniqueFlag){
+                    uniqueContributions.add(val);
+                }
+            }
+            if(uniqueContributions.size()>0)
+                uc.add(uniqueContributions);
+        }
+        // System.out.println(uc);
+        if(uc.size()==0){
+            return coins[0]*k;
+        }
+        ArrayList<Long> uniqueContributions=mergeSortedArrayLists(uc);
+        // System.out.println(uniqueContributions);
+        boolean flag=true;
+        int startIndex=1;
+        long kVal=(long)coins[0]*(long)--k;
+        while(flag){
+            int newKValIndex=replace(uniqueContributions, kVal, startIndex);
+            // System.out.println("-- "+kVal+" "+newKValIndex);
+            if(newKValIndex==-1)break;
+            kVal=uniqueContributions.get(newKValIndex);
+            if(startIndex>=newKValIndex)break;
+            // System.out.println(kVal+" "+uniqueContributions.get(startIndex));
+            kVal=(long)coins[0]*(long)--k;
+            // if(!binarySearch(uniqueContributions, kVal, startIndex)){
+            //     flag=false;
+            // }
+            ++startIndex;
+        }
+        return kVal;
+    }
+    int replace(ArrayList<Long> arr, long val, int startIndex){
+        int l=startIndex, r=arr.size()-1;
+        if(startIndex==arr.size() || val<=arr.get(startIndex))return -1;
+        while(l<=r){
+            int m=(l+r)/2;
+            if(val>arr.get(m)){
+                l=m+1;
+            }
+            else{
+                r=m-1;
+            }
+        }
+        // if(r==startIndex)return false;
+        return r;
+    }
+    ArrayList<Long> mergeSortedArrayLists(ArrayList<ArrayList<Long>> sortedArrayLists) {
+        ArrayList<Long> result = new ArrayList<>();
+        int[] pointers = new int[sortedArrayLists.size()];
+
+        // Iterate until all pointers reach the end of their respective lists
+        while (!allPointersReachedEnd(sortedArrayLists, pointers)) {
+            int minIndex = -1;
+            long minValue = Integer.MAX_VALUE;
+
+            // Find the minimum value among the elements pointed by the pointers
+            for (int i = 0; i < sortedArrayLists.size(); i++) {
+                ArrayList<Long> list = sortedArrayLists.get(i);
+                if (pointers[i] < list.size() && list.get(pointers[i]) < minValue) {
+                    minValue = list.get(pointers[i]);
+                    minIndex = i;
+                }
+            }
+
+            // Add the minimum value to the result and move the respective pointer forward
+            result.add(minValue);
+            pointers[minIndex]++;
+        }
+
+        return result;
+    }
+
+    // Helper method to check if all pointers have reached the end of their respective lists
+    boolean allPointersReachedEnd(ArrayList<ArrayList<Long>> lists, int[] pointers) {
+        for (int i = 0; i < lists.size(); i++) {
+            if (pointers[i] < lists.get(i).size()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    boolean insert(ArrayList<Long> arr, long val, int l, int r){
+        // System.out.println(arr.get(l)+" "+val+" "+arr.get(r));
+        if(arr.get(l)<=val && val<=arr.get(r)){
+            // arr.add(val);
+            arr.set(r,val);
+            // Collections.sort(arr);
+            return true;
+        }
+        return false;
+    }
+}
+````
+
+</details>
