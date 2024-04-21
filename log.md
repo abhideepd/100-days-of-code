@@ -8111,3 +8111,208 @@ class Solution {
 ````
 
 </details>
+
+### Day 19: April 21, 2024
+
+**Progress**:
+Gave a shot to those two problems again, I think, I am addicted to solving them, lol! And, gqve today's leetcode conetst, solved the first 2 problems, were quite easy, solved it within 30 mins. however, couldn't get anywhere with the other two problems, so will be upsolving them.
+<br><br>
+the problems, attempted as follows:
+***
+Yesterday's Problems:
+<details>
+<summary>Omask Metro (Hard)</summary> 
+Link: https://codeforces.com/problemset/problem/1843/F2
+<br>
+Well, trying to understand the existing solutions and editorials, I am getting the idea where I went wrong, previously. However, still need to figure out what's missing, like, I feel, I am missing some part of the puzzle. What I was doing wrong is, we have to find, in any series of the tree, the max and min, and I was adding two trees max and min, without any thought, which won't work... so lets see...
+</details>
+<details>
+<summary>Kth Smallest Amount with single denomination combination</summary>
+Link: https://leetcode.com/problems/kth-smallest-amount-with-single-denomination-combination/description/
+<br>
+Applied another of my ideas, and am officially out of all the ideas, therefore, will see the editorial. This last idea, kind of went the most far away with passing the test cases, however, with a particular test case, the flaw of my algorithm was evident, that, it won't work. The idea as, at first, storing the denominations of nos. which weren't divisible with anyone, then find, their place in the series, where the lowest coin's multiple are present, and after that, reduce k and then continue. However, in the test case, [5,6] and k being 2^40, the array which stores all the nos. of 6 which aren't divisible by 5, the no. of elements went passed the memory heap limit!! Lol!. there is no going back, therefore, see the editorial finally, as I don't possess any more idea.<br>
+My Implementation[Memory Limit Exceeded]:
+
+````java
+class Solution {
+    public long findKthSmallest(int[] coins, int k) {
+        Arrays.sort(coins);
+        long kValue=(long)coins[0]*(long)k;
+        // find all the unique contributions
+        ArrayList<ArrayList<Long>> uc=new ArrayList<>();
+        for(int i=1;i<coins.length;i++){
+            ArrayList<Long> uniqueContributions=new ArrayList<Long>();
+            long d=kValue/coins[i];
+            for(int j=1;j<=d;j++){
+                long val=(long)coins[i]*(long)j;
+                boolean uniqueFlag=true;
+                for(int c=0;c<i;c++){
+                    if(val%coins[c]==0){
+                        uniqueFlag=false;
+                        break;
+                    }
+                }
+                if(uniqueFlag){
+                    uniqueContributions.add(val);
+                    // System.out.println(uniqueContributions);
+                }
+            }
+            if(uniqueContributions.size()>0)
+                uc.add(uniqueContributions);
+        }
+        // System.out.println(uc);
+        ArrayList<Long> uniqueContributions=mergeSortedArrayLists(uc);
+        // System.out.println(uniqueContributions);
+        if(uc.size()==0){
+            return (long)coins[0]*(long)k;
+        }
+        int kk=k;
+        int l=1, r=k;
+        long prev=0, lastElem=0;
+        for(long i:uniqueContributions){
+            int indexOf_i=binSearch(1,r,i,coins[0]);
+            // System.out.println("index of i:"+i+" is "+indexOf_i+" within limit index "+l+" "+r);
+            if(indexOf_i==-1) break;
+            --r;
+            if((long)coins[0]*r<i){
+                lastElem=i;
+            }
+            else{
+                lastElem=(long)coins[0]*(long)r;
+            }
+            prev=i;
+            l=indexOf_i;
+        }
+        // System.out.println(prev);
+        return lastElem;
+        // return Math.min((long)coins[0]*r, uniqueContributions.get(l));
+    }
+    int binSearch(int l, int r, long val, int multiplier){
+        if(val>(long)r*(long)multiplier)return -1;
+        if(val<(long)l*(long)multiplier)return -1;
+        while(l<r){
+            int m=(l+r)/2;
+            long actualVal=(long)m*(long)multiplier;
+            if(val<actualVal){
+                r=m;
+            }
+            else{
+                l=m+1;
+            }
+        }
+        return l;
+    }
+    ArrayList<Long> mergeSortedArrayLists(ArrayList<ArrayList<Long>> sortedArrayLists) {
+        ArrayList<Long> result = new ArrayList<>();
+        int[] pointers = new int[sortedArrayLists.size()];
+
+        // Iterate until all pointers reach the end of their respective lists
+        while (!allPointersReachedEnd(sortedArrayLists, pointers)) {
+            int minIndex = -1;
+            long minValue = Integer.MAX_VALUE;
+
+            // Find the minimum value among the elements pointed by the pointers
+            for (int i = 0; i < sortedArrayLists.size(); i++) {
+                ArrayList<Long> list = sortedArrayLists.get(i);
+                if (pointers[i] < list.size() && list.get(pointers[i]) < minValue) {
+                    minValue = list.get(pointers[i]);
+                    minIndex = i;
+                }
+            }
+
+            // Add the minimum value to the result and move the respective pointer forward
+            result.add(minValue);
+            pointers[minIndex]++;
+        }
+
+        return result;
+    }
+    // Helper method to check if all pointers have reached the end of their respective lists
+    boolean allPointersReachedEnd(ArrayList<ArrayList<Long>> lists, int[] pointers) {
+        for (int i = 0; i < lists.size(); i++) {
+            if (pointers[i] < lists.get(i).size()) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+````
+
+</details>
+
+***
+Contest Problems: (which I solved)
+<details>
+<summary>Count the Number of Special Characters I</summary>
+Link: https://leetcode.com/problems/count-the-number-of-special-characters-i/description/
+<br>
+Really simple problem
+<br>
+My Implementation:
+
+````java
+class Solution {
+    public int numberOfSpecialChars(String word) {
+        boolean lowerCase[]=new boolean[26];
+        boolean upperCase[]=new boolean[26];
+        for(int i=0;i<word.length();i++){
+            char c=word.charAt(i);
+            if(c>='A' && c<='Z'){
+                upperCase[c-65]=true;
+            }
+            else{
+                lowerCase[c-97]=true;
+            }
+        }
+        int ans=0;
+        for(int i=0;i<26;i++){
+            if(lowerCase[i]==true && upperCase[i]==true){
+                ++ans;
+            }
+        }
+        return ans;
+    }
+}
+````
+
+</details>
+<details>
+<summary>Count the Number of Special Characters II</summary>
+Link:https://leetcode.com/problems/count-the-number-of-special-characters-ii/description/
+<br>
+A twist of the above problem
+<br>
+My Implementation:
+
+````java
+class Solution {
+    public int numberOfSpecialChars(String word) {
+        int lowerCase[]=new int[26];
+        int upperCase[]=new int[26];
+        Arrays.fill(lowerCase,-1);
+        Arrays.fill(upperCase,-1);
+        for(int i=0;i<word.length();i++){
+            char c=word.charAt(i);
+            if(c>='A' && c<='Z'){
+                if(upperCase[c-65]==-1){
+                    upperCase[c-65]=i;   
+                }
+            }
+            else{
+                lowerCase[c-97]=i;
+            }
+        }
+        int ans=0;
+        for(int i=0;i<26;i++){
+            if(lowerCase[i]!=-1 && upperCase[i]!=-1 && lowerCase[i]<upperCase[i]){
+                ++ans;
+            }
+        }
+        return ans;
+    }
+}
+````
+
+</details>
