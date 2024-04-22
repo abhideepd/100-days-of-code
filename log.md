@@ -8316,3 +8316,124 @@ class Solution {
 ````
 
 </details>
+
+### Day 20: April 22, 2024
+
+**Progress**:
+Upsolved, one of the problem, well, pretty easily. The other problem, turns out, is djextra's algorithm. Therefore, before solving it, I am planning to solve some extra problems, in order to understand the concepts intuitively.<br>
+<details>
+<summary>
+<a href="https://leetcode.com/problems/minimum-number-of-operations-to-satisfy-conditions/description/">Upsolved solution of 3122. Minimum Number of Operations to Satisfy Conditions</a>
+</summary>
+The question is pretty straight forward, and its kinda deceiving actually, and easy to skip the nuances. I did, therefore, couldn't solve it in the contest. I approached the problem, greedily, previously, however, pretty soon, you shall realize, that greedy doesn't produce optimal results. Then, you have to simulate it with a recursion, once that's done successfully, memoize it! and we are done! if you wanna further optimize this memoisation, store the no. count in grid, rather than counting like a jackass, for every column ;-) <br>
+
+incorrect greedy implementation
+
+````java
+class Solution {
+    public int minimumOperations(int[][] grid) {
+        int freq[][]=new int[11][grid[0].length];
+        for(int col=0;col<grid[0].length;col++){
+            for(int row=0;row<grid.length;row++){
+                ++freq[grid[row][col]][col];
+            }
+        }
+        int ans=0;
+        int prevVal=10;
+        for(int col=0;col<grid[0].length;col++){
+            int answer=Integer.MAX_VALUE;
+            int pVal=prevVal;
+            for(int i=0;i<10;i++){
+                if(freq[i][col]==0)continue;
+                if(i==prevVal && answer>grid.length){
+                    pVal=10;
+                    answer=grid.length;
+                }
+                else if(answer>grid.length-freq[i][col]){
+                    answer=grid.length-freq[i][col];
+                    pVal=i;
+                }
+            }
+            ans+=answer;
+            prevVal=pVal;
+        }
+        return ans;
+    }
+}
+````
+
+recursion implementation, which TLEs
+
+````java
+class Solution {
+    int grid[][];
+    public int minimumOperations(int[][] g) {
+        grid=g;
+        return xyz(0, -1);
+    }
+    int xyz(int column, int prevVal){
+        if(column==grid[0].length){
+            return 0;
+        }
+        int ans=Integer.MAX_VALUE;
+        for(int val=0; val<=9; val++){
+            if(prevVal==val){
+                continue;
+            }
+            int change=0;
+            for(int row=0; row<grid.length; row++){
+                if(grid[row][column]!=val){
+                    ++change;
+                }
+            }
+            change+=xyz(column+1,val);
+            ans=Math.min(change, ans);
+        }
+        return ans;
+    }
+}
+````
+
+memoized solution, of the above
+
+````java
+class Solution {
+    int grid[][];
+    int dp[][];
+    public int minimumOperations(int[][] g) {
+        grid=g;
+        dp=new int[grid[0].length][11];
+        for(int i[]:dp){
+            Arrays.fill(i,-1);
+        }
+        return xyz(0, 10);
+    }
+    int xyz(int column, int prevVal){
+        if(column==grid[0].length){
+            return 0;
+        }
+        if(dp[column][prevVal]!=-1){
+            return dp[column][prevVal];
+        }
+        int ans=Integer.MAX_VALUE;
+        for(int val=0; val<=9; val++){
+            if(prevVal==val){
+                continue;
+            }
+            int change=0;
+            for(int row=0; row<grid.length; row++){
+                if(grid[row][column]!=val){
+                    ++change;
+                }
+            }
+            change+=xyz(column+1,val);
+            ans=Math.min(change, ans);
+        }
+        dp[column][prevVal]=ans;
+        return ans;
+    }
+}
+````
+
+</details>
+
