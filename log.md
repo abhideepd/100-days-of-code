@@ -8437,3 +8437,7 @@ class Solution {
 
 </details>
 
+### Day 20: April 22, 2024
+
+**Progress**:
+Revised Omask Metro problem again, which I was doing for previous couple of days, however, took a break from the previous leetcode upsolve problem. Apart from this, started with learning dijextra!
