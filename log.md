@@ -8441,3 +8441,8 @@ class Solution {
 
 **Progress**:
 Revised Omask Metro problem again, which I was doing for previous couple of days, however, took a break from the previous leetcode upsolve problem. Apart from this, started with learning dijextra!
+
+### Day 22: April 24, 2024
+
+**Progress**:
+Continued to the learning process of dijextra. There are some stuff, that needs to be understood, before understanding dijextra comletely, well, not that important, however, I am very curious, as to how dijextra came. Right now, I am in the midst of understanding, how bfs is used to operate with weighted undirectional graphs! a littlie mindtwister, but still, noice! its a lot better than the concept of binary jumping, that, completely twisted my mind (in a good way, though!)
