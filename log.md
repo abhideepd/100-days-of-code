@@ -8446,3 +8446,10 @@ Revised Omask Metro problem again, which I was doing for previous couple of days
 
 **Progress**:
 Continued to the learning process of dijextra. There are some stuff, that needs to be understood, before understanding dijextra comletely, well, not that important, however, I am very curious, as to how dijextra came. Right now, I am in the midst of understanding, how bfs is used to operate with weighted undirectional graphs! a littlie mindtwister, but still, noice! its a lot better than the concept of binary jumping, that, completely twisted my mind (in a good way, though!)
+
+### Day 23,24: April 25 & 26, 2024
+
+**Progress**:
+1. Got some errands to run, completely procrastinated to put forward my updates. Still trial erroring the problems from the last week, the kth smallest element and omask metro, because, turns out, there were some underlying concepts like inclusion exclusion principle, prefix sums, I wasn't aware or out of practice with... therefore, taking so much time, to complete these problems with the intuition.
+2. Apart from this, learning Dijextra and the other shortest path finding strategies, that were and are being used in place of it, and why.
+3. I thought, about, a new kind of update, a learning archive. I have a habit, of binging videos or reading blogs or articles or shit on youtube, about tech. So, I had an idea, like, why not document it ???? So I have started this "learning repository" of mine, and provided with updates for two days. Check it out!! (a small engagement farming: there is something about chatgpt jailbreak and pornography... lol)
