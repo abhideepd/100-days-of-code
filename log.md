@@ -8453,3 +8453,101 @@ Continued to the learning process of dijextra. There are some stuff, that needs 
 1. Got some errands to run, completely procrastinated to put forward my updates. Still trial erroring the problems from the last week, the kth smallest element and omask metro, because, turns out, there were some underlying concepts like inclusion exclusion principle, prefix sums, I wasn't aware or out of practice with... therefore, taking so much time, to complete these problems with the intuition.
 2. Apart from this, learning Dijextra and the other shortest path finding strategies, that were and are being used in place of it, and why.
 3. I thought, about, a new kind of update, a learning archive. I have a habit, of binging videos or reading blogs or articles or shit on youtube, about tech. So, I had an idea, like, why not document it ???? So I have started this "learning repository" of mine, and provided with updates for two days. Check it out!! (a small engagement farming: there is something about chatgpt jailbreak and pornography... lol)
+
+### Day 25,26: April 27 & 28, 2024
+
+**Progress**:
+1. Finally, man, upsolved the leetcode problem from last to last week, [Kth Smallest Amount With Single Denomination Combination](https://leetcode.com/problems/kth-smallest-amount-with-single-denomination-combination/description/), the happiness of "getting" the problem, which was previously, even unthinkable, is amazing !! Will, update my journey, with this problem, in my next update!
+2. Gave leetcode contest and guess what ! Solved 3/4 of them in less than an hour. However, a bit disheartened that I couldn't solve the 4th, inspite of all this time, however, feels nice, to solve 3 :-) Updated the problems below:
+
+**Implementation**:
+<br>
+Weekly Contest 395:
+<details>
+	<summary>Find the Integer Added to Array I</summary>
+	<br>
+	link: https://leetcode.com/problems/find-the-integer-added-to-array-i/description/
+	<br>
+	A really easy, straight forward problem.<br>
+
+  		class Solution {
+		    public int addedInteger(int[] nums1, int[] nums2) {
+		        Arrays.sort(nums1);
+		        Arrays.sort(nums2);
+		        return nums2[0]-nums1[0];
+		    }
+		}
+  
+</details>
+
+<details>
+	<summary>Find the Integer Added to Array II</summary>
+	<br>
+	link: https://leetcode.com/problems/find-the-integer-added-to-array-ii/description/
+	<br>
+	Seemed a bit tricky, until I saw the constraints, immediately, understood, that a bruteforce simulation of the process would work.
+	as mention in question "Removing 2 elements in 2nd array", simply using two loops to simulate the removal of elements. Then 	comparing the difference between the rest of the elements. Since, the difference is equal, throughout, any change in difference means, proper elements weren't removed.
+<br>
+Advice: Try the brute force approach on pen and paper, and write a bruteforce algo, simulating this process, and voila!
+
+  		class Solution {
+		    public int minimumAddedInteger(int[] nums1, int[] nums2) {
+		        Arrays.sort(nums1);
+		        Arrays.sort(nums2);
+		        return findOut(nums1, nums2);
+		    }
+		    int findOut(int nums1[], int nums2[]){
+		        int default_value=5000;
+		        for(int remove_i=0;remove_i<nums1.length;remove_i++){
+		            for(int remove_j=remove_i+1;remove_j<nums1.length;remove_j++){
+		                int c=0, diff=default_value;
+		                boolean flag=false;
+		                for(int i=0;i<nums1.length;i++){
+		                    if(remove_i==i)continue;
+		                    if(remove_j==i)continue;
+		                    if(diff==default_value){
+		                        diff=nums1[i]-nums2[c];
+		                    }
+		                    else{
+		                        if(diff!=(nums1[i]-nums2[c])){
+		                            flag=true;
+		                            break;
+		                        }
+		                    }
+		                    ++c;
+		                }
+		                if(!flag){
+		                    return -diff;
+		                }
+		            }
+		        }
+		        return 0;
+		    }
+		    
+		}
+    
+</details>
+
+<details>
+<summary>Minimum Array End</summary>
+<br>
+link: https://leetcode.com/problems/minimum-array-end/description/
+<br>
+Intuition:<br>
+I thought, of optimizing because, I was pretty sure, this won't run, during contest, due to the contraints. However, had still 10% hope, of ACing it, because of the 10^8 limit instead of 10^10, because, for the later, it would sure shot have TLEd.
+
+Approach: <br>
+The approach is actually simple, however, it would be better, if you work out the approach on paper, instead in your head (well, I can't...). The answer, which should be 'x' is a no compromise and the whole array is to be "&", therefore, for every new array value, I am "orring" the "x" in order to preserve the x's value... and the max ans is generated on its own... I hope I was clear. Please point out, if there are holes in my explanation
+
+	 class Solution {
+	    public long minEnd(int n, int x) {
+	        long ans=x;
+	        for(int i=1;i<n;i++){
+	            ++ans;
+	            ans=(ans|x);
+	        }
+	        return ans;
+	    }
+	}
+
+</details>
