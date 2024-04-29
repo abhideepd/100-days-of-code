@@ -8551,3 +8551,87 @@ The approach is actually simple, however, it would be better, if you work out th
 	}
 
 </details>
+
+### Day 27: April 29, 2024
+
+**Progress**:
+Well, finally upsolved this leetcode contest problem [Kth Smallest Amount With Single Denomination Combination](https://leetcode.com/problems/kth-smallest-amount-with-single-denomination-combination/). This problem was like a chameleon, which turned out to a completely new concept / way to solve it, and couldn't be solved with traditional understanding. Learnt a lot about binary search, as well as the concept of Inclusion-Exclusion. 
+
+**Implementation**:
+So, the question is quite simple to understand. There is an array of nos. we have to find the no. at the kth place. The no. series is formed as such, each no. should be divisible by atleast one no. from the array and there should be no repetation of nos. So, quite easy, right ? Store the distinct multimple of each no. and find the kth no. Except, that, the k value, which is input, has a contraint of 2*10^9. So neither we can store so many elements, nor can we traverse till this, as will face, TLE and hit memory limit. So, we have no option other than, using binary search to guess the answer, see, if the answer's position is "k" or not. How will we know that ? With the inclusion-exclusion formula (google it, given pretty clearly), for which we, require lcm of all the possible combinations of nos. So, once we store the lcms of this combination, we run through each no. to find if it's k or not. And that's how, we arrive to the solution.
+
+<details>
+<summary>
+	Implementation
+</summary>
+
+````java
+
+class Solution {
+    int coins[];
+    ArrayList<Long> lcms;
+    public long findKthSmallest(int[] c, int k) {
+        initialize(c);
+        long l=1;
+        long r=25l*(2*1000000000)+10l;
+        while(l<r){
+            long mid=(l+r)/2;
+            long temp=findK(mid);
+            if(temp<k){
+                l=mid+1;
+            }
+            else{
+                r=mid;
+            }
+        }
+        return r;
+    }
+    void initialize(int cc[]){
+        coins=cc;
+        lcms=new ArrayList<Long>();
+        long bits=1<<coins.length;
+        for(int j=1;j<bits;j++){
+            int i=0, c=j;
+            ArrayList<Integer> temp_lcm_eligible=new ArrayList<Integer>();
+            int noOfValues=0;
+            while(c!=0){
+                if((c&1)==1){
+                    temp_lcm_eligible.add(coins[i]);
+                    ++noOfValues;
+                }
+                c=c>>1;
+                ++i;
+            }
+            long temp=getLCM(temp_lcm_eligible);
+            if(noOfValues%2==0){
+                temp=temp*-1;
+            }
+            lcms.add(temp);
+        }
+    }
+    long getLCM(ArrayList<Integer> arr){
+        long lcm = arr.get(0);
+        for (int i:arr) {
+            long currentNumber = i;
+            lcm = (lcm * currentNumber) / gcdOf(lcm, currentNumber);
+        }
+        return lcm;
+    }
+    long gcdOf(long a, long b){
+        if(a==0){
+            return b;
+        }
+        return gcdOf(b%a, a);
+    }
+    long findK(long n){
+        long result=0;
+        for(long lcm:lcms){
+            result+=n/lcm;
+        }
+        return result;
+    }
+}
+
+````
+
+</details>
