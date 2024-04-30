@@ -8635,3 +8635,151 @@ class Solution {
 ````
 
 </details>
+
+### Day 28: April 30, 2024
+
+**Progress**:
+1. Upsolved this leetcode contest problem [Minimum Array End](https://leetcode.com/problems/minimum-array-end/description/). Although, I had solved it in contest, however, there was a much better optimized solution, present, and I was very curious, to know it. ALthough it was a bit mind twisting, still, with attempts, understood it !
+2. Also, upsolved this problem from Sunday's contest [Find the Median of the Uniqueness Array](https://leetcode.com/problems/find-the-median-of-the-uniqueness-array/description/). Well, question is, a little not easy to understand, however not hard, you just need to spend some time with the question, to understand. So, it seems to easy, at first, with a brute force sol. and it passes 90% of Test cases. However, looking at the contraints, its evident that n^2 algorithm, won't cut it, in any freaking way, atleast an logarithmic sol (nLogn) sol. is required. So, yeah, binary search or sorting related, however, since, the answer is order dependent of the input, so no sorting and somehow, implement binary search. Solution with explaation explained below, in details.
+
+**Implementation**:
+<details>
+<br>
+<summary>Minimum Array End</summary>
+So the first basic observation is, x, will remain intact, there will be no change there, so, you can deduce, all the nos. in the array are to me greater than x, in order to keep the bits of x intact. So in the brute force way, we can increase x value and "or" with x, in order change the number as well as keep the x's value intact. However, the constraints are huge. So, why not, travese the bits of the no. instead ? because, its limited to 64 binary digits, right ? Yup!. So, keeping the bits of x intact, we will traverse the x's bits, and when '1' comes, skip it, and then traverse it... If you pen and paperify the bruteforce approach, it would be easier to understand the binary approach.
+
+````java
+class Solution {
+    int arrX[];
+    public long minEnd(int n, int x) {
+        initialize_arr();
+        fill(arrX, x);
+        --n;
+        int xIndex=63;
+        while(n>0){
+            if(arrX[xIndex]==0){
+                arrX[xIndex]=(n&1);
+                n=n>>1;
+            }
+            --xIndex;
+        }
+        return getAnswer();
+    }
+    long getAnswer(){
+        long ans=0;
+        long val=1;
+        for(int i=63;i>=0;i--){
+            if(arrX[i]==1){
+                ans+=val;
+            }
+            val=val*2;
+        }
+        return ans;
+    }
+    void fill(int arr[], int temp){
+        int i=64;
+        while(temp!=0){
+            arr[--i]=(temp&1);
+            temp=temp>>1;
+        }
+    }
+    void initialize_arr(){
+        arrX=new int[64];
+    }
+}
+````
+
+</details>
+<details>
+<summary>
+Find the Median of the Uniqueness Array
+</summary>
+<br>
+Initially, naively, or purposely, even after looking at the constraints, and secretly hoping for miracle, tried n^2 solution, of creating an array, using recursion and finding the median. However, it pretty much fell appart, due to time as well as space! My brute force implementation below, enjoy!
+
+````java
+class Solution {
+    int arr[]=new int[100001];
+    public int medianOfUniquenessArray(int[] nums) {
+        xyz(nums, nums.length-1);
+        int midElementIndex=(sumOfValues(nums.length)/2)-(sumOfValues(nums.length)%2==0?1:0);
+        return answer(midElementIndex);
+    }
+    int answer(int n){
+        int c=0;
+        while(n>-1){
+            if(n<arr[c]){
+                return c;
+            }
+            n=n-arr[c];
+            ++c;
+        }
+        return 0;
+    }
+    int sumOfValues(int n){
+        return n*(n+1)/2;
+    }
+    void xyz(int nums[], int limit){
+        if(limit<0){
+            return;
+        }
+        for(int i=0;i<nums.length-limit;i++){
+            ++arr[getDistinctBetween(nums, i, i+limit)];
+        }
+        xyz(nums,--limit);
+    }
+    int getDistinctBetween(int nums[], int start, int end){
+        HashSet<Integer> hs=new HashSet<Integer>();
+        for(int i=start;i<=end;i++){
+            hs.add(nums[i]);
+        }
+        return hs.size();
+    }
+}
+````
+
+<br>
+then, "wake up to reality!" moment happend, and started pondering for a binary search approach, wasn't able to crack it, so started seeing other's code and instantly, understood, what I had to do. Basically, what is median ? what is it really ? The almost middle part of a set, right ? basically, if median is m and the set size is s, we can comfortably assume that m*2 is almost equal to total ? so over that idea, the solution is designed!
+
+````java
+class Solution {
+    int nums[];
+    public int medianOfUniquenessArray(int[] n) {
+        nums=n;
+        long total=((long)nums.length)*((long)nums.length+1)/2l;
+        int l=1, r=nums.length;
+        while(l<r){
+            int m=(l+r)/2;
+            long noOfSubsets=noOfSubsetsWithDistinctElems(m);
+            if(noOfSubsets<total-noOfSubsets){
+                l=m+1;
+            }
+            else{
+                r=m;
+            }
+        }
+        return l;
+    }
+    long noOfSubsetsWithDistinctElems(int k){
+        HashMap<Integer, Integer> hm=new HashMap<Integer, Integer>();
+        int c=0;
+        long res=0;
+        int kl=-1;
+        for(int i:nums){
+            ++kl;
+            hm.put(i, hm.getOrDefault(i,0)+1);
+            while(hm.size()>k){
+                hm.put(nums[c], hm.get(nums[c])-1);
+                if(hm.get(nums[c])==0){
+                    hm.remove(nums[c]);
+                }
+                ++c;
+            }
+            res+=(long)(kl-c)+1l;
+        }
+        return res;
+    }
+}
+````
+
+</details>
