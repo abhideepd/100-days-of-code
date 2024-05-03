@@ -8783,3 +8783,64 @@ class Solution {
 ````
 
 </details>
+
+### Day 29 & 30: May 1 & 2
+
+**Progress**:
+Was pulling a 2-day all nighter, because, I really love them, however, can't do it frequently, as it affects health very badly. 
+1. Had a lot of junk on youtube, that I had saved over the years, in watch later and Liked videos and playlists. I didn't want to delete them, however, didn't want to keep on my youtube either. So thought of, saving them as bookmarks on my local notebook, to refer them later. So, started doing manually, and within 15 mins. understood, how boring and tedious the task is. Soon started finding ways to automate it. Learnt a bit of javascript in order to write enough code on developer's console, to extract the bookmarks. The details, of the scripts are mentioned in the implementation
+2. Again, started disecting the Omask Metro problem, as to where the holes are, and why, I still ain't able to solve this problem. I think, I am close to cracking it.
+
+**Implementation**:
+<br>
+Well, if you have a playlist, where you want all the youtube links, just fire this query in the developer console and you are golden !!
+<br>
+mention the required class name of the anchor tag, whose href you are after
+````javascript
+const anchorTags = document.querySelectorAll('a.yt-simple-endpoint.style-scope.ytd-playlist-video-renderer');
+
+// Loop through each anchor tag and log the href value with the prefix
+anchorTags.forEach(anchor => {
+  const href = anchor.getAttribute('href');
+  const fullUrl = `https://www.youtube.com/${href}`;
+  console.log(fullUrl);
+});
+````
+
+<details>
+<summary>Some of my experiemnts</summary>
+
+````javascript
+xyz=(document.getElementsByClassName('yt-simple-endpoint.style-scope.ytd-playlist-video-renderer'));
+for(var i=0;i<xyz.length;i++)
+    console.log(xyz[i].href);
+````
+
+````javascript
+xyz=(document.getElementsByClassName('yt-simple-endpoint focus-on-expand'));
+for(var i=0;i<xyz.length;i++)
+    console.log(xyz[i].href);
+````
+
+````javascript
+const anchorTags = document.querySelectorAll('a.yt-simple-endpoint focus-on-expand style-scope ytd-rich-grid-slim-media');
+
+// Loop through each anchor tag and log the href value with the prefix
+anchorTags.forEach(anchor => {
+  const href = anchor.getAttribute('href');
+  const fullUrl = `https://www.youtube.com/${href}`;
+  console.log(fullUrl);
+});
+````
+
+</details>
+
+I also, wanted to automate the process of removing the videos, after copying them on local. So I started monitoring the requests.
+These are the requests, the curls generated, on the event of deleting or updating, interesting stuff, man
+So, there is a clicktrackingid, which, is generated on the fly, which tracks the user's action request id, if we want to delete it or if we want to unlike video, or add to playlist, I thought of automating, however, didn't give more than 30 mins. Because, manually doing it was faster, for the time being….. Hope, such a problem comes though, which compells me to write a script to unwatch and unlike videos in bulk
+
+However, to get the link and save them, these scripts were of incredible help, else, I would have to go thorugh each video and copy the url, a huge nightmare.
+
+Open the network section, delete a video from your watch later or playlist or liked videos etc, and analyse that request, you will find these stuff!. <br>
+Open, inspect elements and search "var ytInitialData ", and just corelate it with the curls generated above, its some spooky stuff!!!
+<br>
