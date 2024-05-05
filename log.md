@@ -8844,3 +8844,146 @@ However, to get the link and save them, these scripts were of incredible help, e
 Open the network section, delete a video from your watch later or playlist or liked videos etc, and analyse that request, you will find these stuff!. <br>
 Open, inspect elements and search "var ytInitialData ", and just corelate it with the curls generated above, its some spooky stuff!!!
 <br>
+
+
+### Day 31 & 32: May 4 & 5
+
+**Progress**:
+1. May 3rd, had some problem with electricity, (transformer issues) thereby, cutting off power for almost half day..
+2. Retried to solve Omask Metro and Lynyrd Skynyrd, previous week
+3. Gave today's leetcode contest, could only solve 2, however, came very very close to solve the third problem, however, just couldn't do it, moye moye
+
+**Implementation:**
+<details>
+ <summary>
+	 Valid Word
+ </summary>
+<br>
+easy questions, however, irritating to implement.
+
+````java
+	class Solution {
+    HashSet<Character> vowels=new HashSet<Character>();
+    HashSet<Character> consonents=new HashSet<Character>();
+    HashSet<Character> acceptableCharacters=new HashSet<Character>();
+    public boolean isValid(String word) {
+        initialize();
+        if(minimum3Characters(word) && atLeastOneVowel(word) && atLeastOneConsonent(word) && (irritatingReason(word))){return true;}
+        return false;
+    }
+    boolean irritatingReason(String word){
+        // return (containsDigits(word) || containsUppercase(word) || containsLowercase(word));
+        // if(!containsDigits(word))return false;
+        // if(containsUppercase(word) || containsLowercase(word))return true;
+        for(char c:word.toCharArray())if(!acceptableCharacters.contains(c))return false;
+        return true;
+    }
+    boolean minimum3Characters(String word){
+        return (word.length()>=3);
+    }
+    boolean atLeastOneVowel(String word){
+        for(char c:word.toCharArray()){
+            if(vowels.contains(c)){
+                return true;
+            }
+        }
+        return false;
+    }
+    boolean atLeastOneConsonent(String word){
+        for(char c:word.toCharArray()){
+            if(consonents.contains(c)){
+                return true;
+            }
+        }
+        return false;
+    }
+    boolean containsDigits(String word){
+        for(char c:word.toCharArray()){
+            if(c>='0' && c<='9'){
+                return true;
+            }
+        }
+        return false;
+    }
+    boolean containsUppercase(String word){
+        for(char c:word.toCharArray()){
+            if(c>='A' && c<='Z'){
+                return true;
+            }
+        }
+        return false;
+    }
+    boolean containsLowercase(String word){
+        for(char c:word.toCharArray()){
+            if(c>='a' && c<='z'){
+                return true;
+            }
+        }
+        return false;
+    }
+    void initialize(){
+        vowels.add('a');
+        vowels.add('e');
+        vowels.add('i');
+        vowels.add('o');
+        vowels.add('u');
+        vowels.add('A');
+        vowels.add('E');
+        vowels.add('I');
+        vowels.add('O');
+        vowels.add('U');
+        for(char c='a';c<='z';c++){
+            if(!vowels.contains(c)){
+                consonents.add(c);
+            }
+            acceptableCharacters.add(c);
+        }
+        for(char c='A';c<='Z';c++){
+            if(!vowels.contains(c)){
+                consonents.add(c);
+            }
+            acceptableCharacters.add(c);
+        }
+        for(char c='0';c<='9';c++){
+            acceptableCharacters.add(c);
+        }
+    }
+}
+````
+
+</details>
+<details>
+	<summary>
+		Minimum Number of Operations to Make Word K-Periodic
+	</summary>
+ <br>
+ Although, it should be harder than the previous problem, however, I personally found it easy
+
+ ````java
+class Solution {
+    public int minimumOperationsToMakeKPeriodic(String word, int k) {
+        HashMap<String,Integer> hm=new HashMap<String,Integer>();
+        String validWord=""; int no=0;
+        for(int i=0;i<word.length();i+=k){
+            String temp=word.substring(i,i+k);
+            hm.put(temp,hm.getOrDefault(temp,0)+1);
+            if(hm.get(temp)>no){
+                no=hm.get(temp);
+                validWord=temp;
+            }
+        }
+        // System.out.println("valid word: "+validWord);
+        int ans=0;
+        for(int i=0;i<word.length();i+=k){
+            String temp=word.substring(i,i+k);
+            if(!temp.equals(validWord)){
+                // System.out.println(i+" "+temp);
+                ++ans;
+            }
+        }
+        return ans;
+    }
+}
+````
+
+</details>
