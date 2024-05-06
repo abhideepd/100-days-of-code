@@ -8987,3 +8987,133 @@ class Solution {
 ````
 
 </details>
+
+### Day 33: May 6
+
+**Progress**:
+1. completed, one of the contest problem [Minimum Length of Anagram Concatenation](https://leetcode.com/problems/minimum-length-of-anagram-concatenation/), had tried a lot in contest, however, was very close, I intuitively knew the solution however wasn't able to express it. Turns out, that gap was gcd. However, gcd was also incorrect because of a small technical glitch in the question termed "concatenation". Therefore, it turned into a simpler approach problem, basically bruteforce. Shit man, could have solved it in the contest..
+
+**Implementation:**
+<details>
+ <summary>
+	 Minimum Length of Anagram Concatenation
+ </summary>
+<br>
+easy questions, however, irritating to implement. 
+
+my contest trial, got pretty close. basically, finding the minimum value, and dividing it with length, thought somwhere around gcd, however gcd didn't strike. well, intuition upgrade !!
+
+````java
+class Solution {
+    int arr[];
+    public int minAnagramLength(String s) {
+        initialize(s);
+        int min=Integer.MAX_VALUE;
+        for(int i:arr){
+            if(i==0)continue;
+            min=Math.min(min,i);
+        }
+        return s.length()/min;
+    }
+    void initialize(String s){
+        arr=new int[26];
+        for(char c:s.toCharArray()){
+            ++arr[c-97];
+        }
+    }
+}
+````
+
+the one with gcd, however, rearranging isn't allowed, therefore this fails. if rearranging was not in question, then, this would have easily passed !!
+
+````java
+class Solution {
+    public int minAnagramLength(String s) {
+        int arr[]=new int[26];
+        for(int i=0;i<s.length();i++){
+            ++arr[s.charAt(i)-'a'];
+        }
+        ArrayList<Integer> ar=new ArrayList<Integer>();
+        for(int i:arr){
+            if(i!=0)ar.add(i);
+        }
+        int ans=gcdOfArray(ar);
+        // if(ans==1){
+        //     return s.length();
+        // }
+        return s.length()/ans;
+    }
+    int gcdOfArray(ArrayList<Integer> arr) {
+        int result = arr.get(0);
+        for (int i = 1; i < arr.size(); i++) {
+            result = gcdEuclidean(result, arr.get(i));
+        }
+        return result;
+    }
+    int gcd(int a, int b){
+        if(a<b){
+            int temp=a;
+            a=b;
+            b=temp;
+        }
+        return gcdEuclidean(a,b);
+    }
+    int gcdEuclidean(int a, int b) {
+        // Ensure that a is greater than or equal to b
+        if (b == 0) {
+            return a;
+        }
+        return gcdEuclidean(b, a % b);
+    }
+}
+````
+
+the final one. well basically, we guess the answer, and check if its forming anagrams or not, like suppose we take the anagram size of 2, and literally break the string into multiplie pieces of 2 and check its frequency.
+
+````java
+class Solution {
+    public int minAnagramLength(String s) {
+        // if(wierdCase(s))return 1;
+        int l=1, r=s.length();
+        while(l<=r){
+            int mid=l;
+            boolean temp=anagramPositive(s,mid);
+            if(temp){
+                return mid;
+            }
+            // System.out.println(l+" "+r+" "+mid+" --> "+temp);
+            l++;
+        }
+        // System.out.println(l+" "+r);
+        return 0;
+    }
+    boolean wierdCase(String s){
+        HashSet<Character> hs=new HashSet<Character>();
+        for(char c:s.toCharArray()){
+            hs.add(c);
+        }
+        if(hs.size()==1)return true;
+        return false;
+    }
+    boolean anagramPositive(String s, int anagramLength){
+        if(s.length()%anagramLength!=0)return false;
+        int parent_arr[]=new int[26];
+        for(int i=0;i<anagramLength;i++){
+            ++parent_arr[s.charAt(i)-'a'];
+        }
+        for(int j=anagramLength;j<s.length();j+=anagramLength){
+            int arr[]=new int[26];
+            for(int i=j;i<Math.min(j+anagramLength,s.length());i++){
+                ++arr[s.charAt(i)-'a'];
+            }
+            for(int c=0;c<26;c++){
+                if(arr[c]!=parent_arr[c]){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+````
+</details>
