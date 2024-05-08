@@ -9117,3 +9117,9 @@ class Solution {
 }
 ````
 </details>
+
+### Day 34 & 35: May 7 & 8
+
+**Progress**:
+1. Still trying out Omask Metro again, have written a draft code and checking the edge cases
+2. Still trying out last problem from the contest, can't seem to wrap my head around it.
