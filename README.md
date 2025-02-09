@@ -1,3 +1,5 @@
+*refer my updates in this [log](https://github.com/abhideepd/100-days-of-code/blob/master/log.md)*
+
 # I've joined the #100DaysOfCode Challenge
 
 ## Contents
