@@ -1,4 +1,4 @@
-*update : didn't complete it. Meaning, I am still consistent, however, just don't update it. Because, the purpose of this, is being consistent, which isn't my problem, atleast with computers and stuff, my core problem is, time management, in general, like how to utilize my time through out the day and in the end of the day or week, I don't feel, I hadn't done enough, I wasted a lot.... This log won't be fixing that problem.*
+*update : didn't complete it. Meaning, I am still consistent, however, just don't update it. Because, the purpose of this, is being consistent, which isn't my problem, atleast with computers and stuff, my core problem is, time management, in general, like how to utilize my time through out the day and in the end of the day or week, I don't feel, I hadn't done enough, I wasted a lot.... This log won't be fixing that problem. This however, did help me find out or inspired me to keep track of what I was doing and have been doing all week*
 
 # 100 Days Of Code - Log
 
