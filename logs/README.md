@@ -8,7 +8,7 @@
 
 **Thoughts:** Well, this will help me stay accountable. I had done this challenge previously. Although, its was a bit tough, still managed to stay alive until the 35th day, then had to end it due to a health sanfu.
 
-**Link to work:** [My Twitter Post]([http://www.example.com](https://twitter.com/BHIDEEP/status/1774741988182532345))
+**Link to work:** [My Twitter Post](https://twitter.com/BHIDEEP/status/1774741988182532345)
 
 ### Day 1: April 2, 2024
 
