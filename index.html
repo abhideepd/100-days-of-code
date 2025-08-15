@@ -114,7 +114,8 @@
           if(!h.id){ h.id = h.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
           const a = document.createElement('a');
           a.href = '#'+h.id;
-          a.textContent = (h.tagName.toLowerCase()) + ' — ' + h.textContent.trim();
+          //a.textContent = (h.tagName.toLowerCase()) + ' — ' + h.textContent.trim();
+          a.textContent = h.textContent.trim();
           a.style.paddingLeft = (h.tagName.toLowerCase()==='h2'? '8px' : (h.tagName.toLowerCase()==='h3'? '16px' : '0px'));
           tocList.appendChild(a);
         });
