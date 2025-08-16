@@ -86,7 +86,7 @@
       document.querySelectorAll('#content a').forEach(a=>{ a.setAttribute('target','_blank'); a.setAttribute('rel','noopener noreferrer'); });
 
       document.querySelectorAll('#content pre code').forEach(block => {
-        try{ hljs.highlightElement(block); }catch(e){/* ignore */}
+        try{ hljs.highlightElement(block); }catch(e){}
       });
 
       const tocList = document.getElementById('toc-list');
